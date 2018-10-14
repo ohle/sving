@@ -1,5 +1,6 @@
 package de.eudaemon.sving;
 
+import de.eudaemon.sving.core.WindowManager;
 import de.eudaemon.util.UnanticipatedException;
 
 import java.io.IOException;
@@ -67,6 +68,7 @@ public class CLI {
             String mainClassName = jar.getManifest().getMainAttributes().getValue("Main-Class");
             Method main = loader.loadClass(mainClassName).getMethod("main", String[].class);
             main.invoke(null, (Object) jarArguments.toArray(new String[]{}));
+            new WindowManager();
         } catch (MalformedURLException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
             throw new UnanticipatedException(e);
         } catch (IOException e) {
