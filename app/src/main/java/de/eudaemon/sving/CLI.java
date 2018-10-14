@@ -1,8 +1,11 @@
 package de.eudaemon.sving;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 public class CLI {
+    private static Logger log = Logger.getLogger(CLI.class.getName());
+
     public static void main(String[] args_) {
         Queue<String> args = new LinkedList<>(Arrays.asList(args_));
         while (!args.isEmpty()) {
@@ -37,11 +40,11 @@ public class CLI {
     }
 
     private static void runJar(String jarFile, ArrayList<String> jarArguments) {
-        System.out.printf(
+        log.info(String.format(
                 "Running %s with %s…\n",
                 jarFile,
                 jarArguments.isEmpty() ? "no arguments" : "the arguments " + String.join(" " , jarArguments)
-                );
+                ));
     }
 
     private static void help() {
