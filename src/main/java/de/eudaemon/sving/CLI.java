@@ -1,35 +1,55 @@
 package de.eudaemon.sving;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.stream.Stream;
+import java.util.*;
 
-public class Main {
-    public static void main(String[] args) {
-        new Main().jvmPIDs().forEach(System.out::println);
-    }
-
-    private Stream<Integer> jvmPIDs() {
-        ProcessBuilder pb = new ProcessBuilder("jps");
-        Stream.Builder<Integer> builder = Stream.builder();
-        try {
-            Process jps = pb.start();
-            jps.waitFor();
-            BufferedReader jpsOutput = new BufferedReader(new InputStreamReader(jps.getInputStream()));
-            String line = jpsOutput.readLine();
-            while (line != null) {
-                String[] parts = line.split("\\s+");
-                if ("jps".equals(parts[1])) {
-                    continue;
-                }
-                builder.add(Integer.parseInt(parts[0]));
-                line = jpsOutput.readLine();
+public class CLI {
+    public static void main(String[] args_) {
+        Queue<String> args = new LinkedList<>(Arrays.asList(args_));
+        while (!args.isEmpty()) {
+            String argument = args.remove();
+            switch(argument) {
+                case "--help":
+                case "-h":
+                    help();
+                    break;
+                case "--daemon":
+                case "-d":
+                    throw new UnsupportedOperationException("Not implemented!");
+                case "--jar":
+                    if (args.isEmpty()) {
+                        System.err.println("Missing jarFile argument");
+                        help();
+                        System.exit(1);
+                    }
+                    String jarFile = args.remove();
+                    ArrayList<String> jarArguments = new ArrayList<>();
+                    while (!args.isEmpty()) {
+                        jarArguments.add(args.remove());
+                    }
+                    runJar(jarFile, jarArguments);
+                    break;
+                default:
+                    System.err.println("Unknown argument: " + argument);
+                    help();
+                    System.exit(1);
             }
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Couldn't run jps. Is a JDK installed?");
         }
-        return builder.build();
     }
 
+    private static void runJar(String jarFile, ArrayList<String> jarArguments) {
+        System.out.printf(
+                "Running %s with %s…\n",
+                jarFile,
+                jarArguments.isEmpty() ? "no arguments" : "the arguments " + String.join(" " , jarArguments)
+                );
+    }
+
+    private static void help() {
+        System.out.println("Usage:");
+        System.out.println("  sving (-d | --daemon)");
+        System.out.println("      Start sving in daemon mode (attaches to any running JVMs and displays a");
+        System.out.println("      tray icon for configuration)");
+        System.out.println("  sving --jar <jarFile>");
+        System.out.println("      Run sving with the given executable jar");
+    }
 }

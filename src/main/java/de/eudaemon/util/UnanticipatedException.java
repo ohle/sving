@@ -1,4 +1,4 @@
-package util;
+package de.eudaemon.util;
 
 /**
  * Generic {@link RuntimeException} that should be thrown whenever an {@link Exception}
