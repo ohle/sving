@@ -11,6 +11,7 @@
         <module>app</module>
         <module>agent</module>
         <module>testapp</module>
+        <module>core</module>
     </modules>
     <packaging>pom</packaging>
 
