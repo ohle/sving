@@ -8,10 +8,10 @@
     <artifactId>sving</artifactId>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>app</module>
-        <module>agent</module>
-        <module>testapp</module>
-        <module>core</module>
+        <module>sving-app</module>
+        <module>sving-agent</module>
+        <module>sving-testapp</module>
+        <module>sving-core</module>
     </modules>
     <packaging>pom</packaging>
 
