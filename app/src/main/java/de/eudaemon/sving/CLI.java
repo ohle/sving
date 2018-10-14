@@ -20,7 +20,8 @@ import java.util.logging.Logger;
 public class CLI {
     private static Logger log = Logger.getLogger(CLI.class.getName());
 
-    public static void main(String[] args_) {
+    public static void main(String[] args_)
+            throws Throwable {
         Queue<String> args = new LinkedList<>(Arrays.asList(args_));
         while (!args.isEmpty()) {
             String argument = args.remove();
@@ -53,7 +54,8 @@ public class CLI {
         }
     }
 
-    private static void runJar(String jarFile, ArrayList<String> jarArguments) {
+    private static void runJar(String jarFile, ArrayList<String> jarArguments)
+            throws Throwable {
         log.info(String.format(
                 "Running %s with %s…\n",
                 jarFile,
@@ -65,10 +67,12 @@ public class CLI {
             String mainClassName = jar.getManifest().getMainAttributes().getValue("Main-Class");
             Method main = loader.loadClass(mainClassName).getMethod("main", String[].class);
             main.invoke(null, (Object) jarArguments.toArray(new String[]{}));
-        } catch (MalformedURLException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (MalformedURLException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
             throw new UnanticipatedException(e);
         } catch (IOException e) {
             log.log(Level.SEVERE, "Error loading " + jarFile, e);
+        } catch (InvocationTargetException e_) {
+            throw e_.getCause();
         }
     }
 
