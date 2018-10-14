@@ -1,6 +1,20 @@
 package de.eudaemon.sving;
 
-import java.util.*;
+import de.eudaemon.util.UnanticipatedException;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.jar.JarFile;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CLI {
@@ -45,6 +59,17 @@ public class CLI {
                 jarFile,
                 jarArguments.isEmpty() ? "no arguments" : "the arguments " + String.join(" " , jarArguments)
                 ));
+        try {
+            URLClassLoader loader = new URLClassLoader(new URL[]{ Paths.get(jarFile).toUri().toURL() }, CLI.class.getClassLoader());
+            JarFile jar = new JarFile(jarFile);
+            String mainClassName = jar.getManifest().getMainAttributes().getValue("Main-Class");
+            Method main = loader.loadClass(mainClassName).getMethod("main", String[].class);
+            main.invoke(null, (Object) jarArguments.toArray(new String[]{}));
+        } catch (MalformedURLException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new UnanticipatedException(e);
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Error loading " + jarFile, e);
+        }
     }
 
     private static void help() {
