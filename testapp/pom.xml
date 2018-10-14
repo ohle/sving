@@ -50,7 +50,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>libs</classpathPrefix>
-                            <mainClass>CLI</mainClass>
+                            <mainClass>de.eudaemon.sving.testapp.App</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
