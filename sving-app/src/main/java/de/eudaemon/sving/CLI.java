@@ -47,12 +47,24 @@ public class CLI {
                     }
                     runJar(jarFile, jarArguments);
                     break;
+                case "-v":
+                    enableDebug(Level.FINE);
+                    break;
+                case "-vv":
+                    enableDebug(Level.FINER);
+                    break;
                 default:
                     System.err.println("Unknown argument: " + argument);
                     help();
                     System.exit(1);
             }
         }
+    }
+
+    private static void enableDebug(Level level) {
+        Logger root = Logger.getLogger("");
+        root.setLevel(level);
+        Arrays.stream(root.getHandlers()).forEach(handler -> handler.setLevel(level));
     }
 
     private static void runJar(String jarFile, ArrayList<String> jarArguments)
@@ -80,10 +92,14 @@ public class CLI {
 
     private static void help() {
         System.out.println("Usage:");
-        System.out.println("  sving (-d | --daemon)");
+        System.out.println("  sving [OPTIONS] (-d | --daemon)");
         System.out.println("      Start sving in daemon mode (attaches to any running JVMs and displays a");
         System.out.println("      tray icon for configuration)");
-        System.out.println("  sving --jar <jarFile>");
+        System.out.println("  sving [OPTIONS] --jar <jarFile>");
         System.out.println("      Run sving with the given executable jar");
+        System.out.println();
+        System.out.println(" OPTIONS");
+        System.out.println(" -v  Verbose output");
+        System.out.println(" -vv Very verbose output");
     }
 }
