@@ -15,8 +15,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 public class CLI {
     private static Logger log = Logger.getLogger(CLI.class.getName());
@@ -24,6 +23,7 @@ public class CLI {
     public static void main(String[] args_)
             throws Throwable {
         Queue<String> args = new LinkedList<>(Arrays.asList(args_));
+        Level logLevel = Level.INFO;
         while (!args.isEmpty()) {
             String argument = args.remove();
             switch(argument) {
@@ -48,23 +48,34 @@ public class CLI {
                     runJar(jarFile, jarArguments);
                     break;
                 case "-v":
-                    enableDebug(Level.FINE);
+                    logLevel = Level.FINE;
                     break;
                 case "-vv":
-                    enableDebug(Level.FINER);
+                    logLevel = Level.FINER;
                     break;
                 default:
                     System.err.println("Unknown argument: " + argument);
                     help();
                     System.exit(1);
             }
+            setupLogging(logLevel);
         }
     }
 
-    private static void enableDebug(Level level) {
-        Logger root = Logger.getLogger("");
-        root.setLevel(level);
-        Arrays.stream(root.getHandlers()).forEach(handler -> handler.setLevel(level));
+    private static void setupLogging(Level logLevel) {
+        Logger rootLogger = Logger.getLogger("de.eudaemon.sving");
+        var handler = new ConsoleHandler(){ public void init() { setOutputStream(System.out);} };
+        handler.init();
+        handler.setLevel(logLevel);
+        rootLogger.setLevel(logLevel);
+        rootLogger.addHandler(handler);
+        SimpleFormatter formatter = new SimpleFormatter() {
+            @Override
+            public String format(LogRecord record) {
+                return String.format("[%s] %s\n", record.getLevel(), record.getMessage());
+            }
+        };
+        handler.setFormatter(formatter);
     }
 
     private static void runJar(String jarFile, ArrayList<String> jarArguments)
