@@ -36,20 +36,30 @@ public class TestWindow
         c.gridx = 0; c.gridy = 0;
         c.weightx = 1;
         c.fill = 1;
-        mainPanel.add(new TextField(), c);
+        TextField textField = new TextField();
+        textField.setName("input");
+        mainPanel.add(textField, c);
         c.gridx = 1;
-        mainPanel.add(new JCheckBox("Checkbox"), c);
+        JCheckBox checkbox = new JCheckBox("Checkbox");
+        checkbox.setName("checkbox");
+        mainPanel.add(checkbox, c);
         c.gridx = 0; c.gridy = 2;
-        mainPanel.add(new JRadioButton("RadioButton"), c);
+        JRadioButton radioButton = new JRadioButton("RadioButton");
+        radioButton.setName("radio-button");
+        mainPanel.add(radioButton, c);
         c.gridx = 1;
-        mainPanel.add(new JLabel("Just a label"), c);
+        JLabel label = new JLabel("Just a label");
+        label.setName("label");
+        mainPanel.add(label, c);
         return mainPanel;
     }
 
     private JPanel createButtonPanel() {
         JPanel panel = new JPanel();
         JButton testButton = new JButton("test");
+        testButton.setName("test-button");
         JButton dialogButton = new JButton("Open dialog");
+        dialogButton.setName("dialog-button");
         dialogButton.addActionListener(e -> {
             JOptionPane.showInputDialog("What?");
         });
