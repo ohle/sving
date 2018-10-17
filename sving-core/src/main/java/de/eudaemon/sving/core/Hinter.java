@@ -9,7 +9,8 @@ public class Hinter {
         return findAllChildren(container)
                 .map(comp -> Hint.create(comp, "abc"))
                 .filter(Optional::isPresent)
-                .map(Optional::get);
+                .map(Optional::get)
+                .filter(h -> h.component.isShowing());
     }
 
     private Stream<Component> findAllChildren(Container container) {

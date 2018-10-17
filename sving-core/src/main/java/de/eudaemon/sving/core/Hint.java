@@ -12,7 +12,7 @@ public class Hint<C extends Component> {
     private final Consumer<C> action;
 
 
-    public static Optional<Hint<?>> create(Component component, String shortcut) {
+    public static Optional<Hint> create(Component component, String shortcut) {
         if (component instanceof AbstractButton) {
             return Optional.of(new Hint<>((AbstractButton) component, shortcut, AbstractButton::doClick));
         } else if (component instanceof JTextComponent) {
