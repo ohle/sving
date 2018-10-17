@@ -7,14 +7,21 @@ import java.awt.event.KeyEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class  WindowManager {
+/**
+ * The SvingWindowManager listens for its configured hotkey and displays
+ * hints on the visible components of the currently focused window
+ */
+public class SvingWindowManager {
 
     private RootPaneContainer currentlyFocusedWindow = null;
     private SvingGlassPane installedGlassPane = null;
 
-    private static final Logger LOG = Logger.getLogger(WindowManager.class.getName());
+    private static final Logger LOG = Logger.getLogger(SvingWindowManager.class.getName());
 
-    public WindowManager() {
+    /**
+     * Installs the WindowManager in the current VM
+     */
+    public void install() {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener(
                 "focusedWindow",
                 e -> updateWindow()
@@ -27,7 +34,7 @@ public class  WindowManager {
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
                 if (isHotkey(e) && e.getID() == KeyEvent.KEY_RELEASED) {
-                    System.out.println("WindowManager.dispatchKeyEvent");
+                    System.out.println("SvingWindowManager.dispatchKeyEvent");
                     return true;
                 }
                 return false;
