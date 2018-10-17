@@ -20,8 +20,7 @@ import java.util.logging.*;
 public class CLI {
     private static Logger log = Logger.getLogger(CLI.class.getName());
 
-    public static void main(String[] args_)
-            throws Throwable {
+    public static void main(String[] args_) {
         Queue<String> args = new LinkedList<>(Arrays.asList(args_));
         Level logLevel = Level.INFO;
         while (!args.isEmpty()) {
@@ -78,8 +77,7 @@ public class CLI {
         handler.setFormatter(formatter);
     }
 
-    private static void runJar(String jarFile, ArrayList<String> jarArguments)
-            throws Throwable {
+    private static void runJar(String jarFile, ArrayList<String> jarArguments) {
         log.info(String.format(
                 "Running %s with %s…\n",
                 jarFile,
@@ -95,10 +93,15 @@ public class CLI {
         } catch (MalformedURLException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
             throw new UnanticipatedException(e);
         } catch (IOException e) {
-            log.log(Level.SEVERE, "Error loading " + jarFile, e);
+            log.log(Level.SEVERE, "Error loading " + jarFile + ": " + e.getMessage());
         } catch (InvocationTargetException e_) {
-            throw e_.getCause();
+            sneakyThrow(e_.getCause()); // Fail like the invoked application would
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <E extends Throwable> void sneakyThrow(Throwable e) throws E {
+        throw (E) e;
     }
 
     private static void help() {
