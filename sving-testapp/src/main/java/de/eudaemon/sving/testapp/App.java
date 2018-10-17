@@ -47,6 +47,7 @@ public class App {
         dialogButton.addActionListener(e -> {
             JOptionPane.showInputDialog("What?");
         });
+        testButton.addActionListener(e -> System.out.println("CLICK!"));
         panel.add(testButton);
         panel.add(dialogButton);
         return panel;
