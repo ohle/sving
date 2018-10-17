@@ -32,12 +32,11 @@ public class HinterTest {
     @Test
     void findsComponents() {
         window.tabbedPane().selectTab(0);
-        Stream<Hint> hints = hinter.findHints(window.target());
-        assertThat(hints, anyMatch(hasComponentWithName(equalTo("checkbox"))));
-        assertThat(hints, anyMatch(hasComponentWithName(equalTo("radio-button"))));
-        assertThat(hints, anyMatch(hasComponentWithName(equalTo("test-button"))));
-        assertThat(hints, anyMatch(hasComponentWithName(equalTo("dialog-button"))));
-        assertThat(hints, anyMatch(hasComponentWithName(equalTo("input"))));
+        assertThat(hinter.findHints(window.target()), anyMatch(hasComponentWithName(equalTo("checkbox"))));
+        assertThat(hinter.findHints(window.target()), anyMatch(hasComponentWithName(equalTo("radio-button"))));
+        assertThat(hinter.findHints(window.target()), anyMatch(hasComponentWithName(equalTo("test-button"))));
+        assertThat(hinter.findHints(window.target()), anyMatch(hasComponentWithName(equalTo("dialog-button"))));
+        assertThat(hinter.findHints(window.target()), anyMatch(hasComponentWithName(equalTo("input"))));
     }
 
     @Test
