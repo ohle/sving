@@ -1,11 +1,15 @@
 package de.eudaemon.sving.core;
 
 import java.awt.*;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class Hinter {
     public Stream<Hint> findHints(Container container) {
-        return findAllChildren(container).map(comp -> new Hint<>(comp, "abc"));
+        return findAllChildren(container)
+                .map(comp -> Hint.create(comp, "abc"))
+                .filter(Optional::isPresent)
+                .map(Optional::get);
     }
 
     private Stream<Component> findAllChildren(Container container) {

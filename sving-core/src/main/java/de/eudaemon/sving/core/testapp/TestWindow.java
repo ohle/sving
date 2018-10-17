@@ -36,7 +36,7 @@ public class TestWindow
         c.gridx = 0; c.gridy = 0;
         c.weightx = 1;
         c.fill = 1;
-        TextField textField = new TextField();
+        JTextField textField = new JTextField();
         textField.setName("input");
         mainPanel.add(textField, c);
         c.gridx = 1;
