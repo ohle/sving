@@ -1,19 +1,15 @@
-package de.eudaemon.sving.testapp;
+package de.eudaemon.sving.core.testapp;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class App {
+public class TestWindow
+        extends JFrame {
 
-    public App() {
-        mainWindow = new JFrame("Sving test App");
-        mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        mainWindow.setLayout(new BorderLayout());
-        EventQueue.invokeLater(() -> {
-            initComponents();
-            mainWindow.pack();
-            mainWindow.setVisible(true);
-        });
+    public TestWindow() {
+        super("Sving test GUI");
+        setLayout(new BorderLayout());
+        initComponents();
     }
 
     private void initComponents() {
@@ -30,7 +26,7 @@ public class App {
 
         tabbedPane.add("First", first);
         tabbedPane.add("Second", second);
-        mainWindow.add(tabbedPane);
+        add(tabbedPane);
     }
 
     private JPanel createMainPanel() {
@@ -63,14 +59,4 @@ public class App {
         return panel;
     }
 
-    public static void main(String[] args) {
-        App app = new App();
-        app.start();
-    }
-
-    private final JFrame mainWindow;
-
-    private void start() {
-
-    }
 }
