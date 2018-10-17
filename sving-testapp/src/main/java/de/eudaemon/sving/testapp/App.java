@@ -9,18 +9,28 @@ public class App {
         mainWindow = new JFrame("Sving test App");
         mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         mainWindow.setLayout(new BorderLayout());
-        initComponents();
         EventQueue.invokeLater(() -> {
+            initComponents();
             mainWindow.pack();
             mainWindow.setVisible(true);
         });
     }
 
     private void initComponents() {
+        JTabbedPane tabbedPane = new JTabbedPane();
+
+        JPanel first = new JPanel(new BorderLayout());
         JPanel mainPanel = createMainPanel();
         JPanel buttonPanel = createButtonPanel();
-        mainWindow.add(mainPanel, BorderLayout.CENTER);
-        mainWindow.add(buttonPanel, BorderLayout.SOUTH);
+        first.add(mainPanel, BorderLayout.CENTER);
+        first.add(buttonPanel, BorderLayout.SOUTH);
+
+        JPanel second = new JPanel();
+        second.add(new JLabel("Not much to see here"));
+
+        tabbedPane.add("First", first);
+        tabbedPane.add("Second", second);
+        mainWindow.add(tabbedPane);
     }
 
     private JPanel createMainPanel() {
