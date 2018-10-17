@@ -18,7 +18,7 @@ public class SvingGlassPane extends JComponent {
         original.paint(g);
     }
 
-    Component getOriginal() {
+    public Component getOriginal() {
         return original;
     }
 }

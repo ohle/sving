@@ -1,4 +1,6 @@
-package de.eudaemon.sving.core;
+package de.eudaemon.sving.core.manager;
+
+import de.eudaemon.sving.core.SvingGlassPane;
 
 import javax.swing.*;
 import java.awt.*;
