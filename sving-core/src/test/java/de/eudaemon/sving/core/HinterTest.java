@@ -1,18 +1,19 @@
 package de.eudaemon.sving.core;
 
-import co.unruly.matchers.StreamMatchers;
 import de.eudaemon.sving.core.testapp.TestWindow;
+import org.assertj.swing.core.GenericTypeMatcher;
 import org.assertj.swing.edt.GuiActionRunner;
+import org.assertj.swing.finder.WindowFinder;
+import org.assertj.swing.fixture.DialogFixture;
 import org.assertj.swing.fixture.FrameFixture;
+import org.assertj.swing.fixture.JCheckBoxFixture;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
 import java.util.stream.Stream;
 
-import static co.unruly.matchers.StreamMatchers.anyMatch;
-import static co.unruly.matchers.StreamMatchers.empty;
-import static de.eudaemon.sving.core.Matchers.hasComponentWithName;
+import static de.eudaemon.sving.core.Matchers.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -52,4 +53,36 @@ public class HinterTest {
         assertThat(hinter.findHints(window.target()), empty());
     }
 
+    @Test
+    void togglesCheckbox() {
+        JCheckBoxFixture checkbox = window.checkBox("checkbox");
+        checkbox.uncheck();
+        findHint("checkbox").execute();
+        checkbox.requireSelected();
+    }
+
+    @Test
+    void pressesButton() {
+        SwingUtilities.invokeLater(() -> findHint("dialog-button").execute() );
+        DialogFixture dialog = WindowFinder.findDialog(JDialog.class).withTimeout(1000).using(window.robot());
+        dialog.requireVisible();
+        dialog.button(new GenericTypeMatcher<>(JButton.class) {
+            @Override
+            protected boolean isMatching(JButton button) {
+                return "OK".equals(button.getText());
+            }
+        }).click();
+    }
+
+    @Test
+    void selectsRadioButton() {
+        findHint("radio-button").execute();
+        window.radioButton().requireSelected();
+    }
+
+    private Hint findHint(String name) {
+        return hinter.findHints(window.target())
+                .filter(h -> h.component.getName().equals(name))
+                .findFirst().get();
+    }
 }

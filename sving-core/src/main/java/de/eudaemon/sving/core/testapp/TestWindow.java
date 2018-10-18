@@ -61,7 +61,7 @@ public class TestWindow
         JButton dialogButton = new JButton("Open dialog");
         dialogButton.setName("dialog-button");
         dialogButton.addActionListener(e -> {
-            JOptionPane.showInputDialog("What?");
+            JOptionPane.showInputDialog(this , "What?");
         });
         testButton.addActionListener(e -> System.out.println("CLICK!"));
         panel.add(testButton);
