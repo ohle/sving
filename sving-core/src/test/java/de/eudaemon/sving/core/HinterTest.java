@@ -21,7 +21,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class HinterTest {
-    private final Hinter hinter = new Hinter("abc");
+    private final SwingHinter hinter = new SwingHinter("abc");
 
     private static FrameFixture window;
 
