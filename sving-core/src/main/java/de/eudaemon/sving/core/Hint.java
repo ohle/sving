@@ -5,6 +5,7 @@ import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class Hint<C extends Component> {
     public final C component;
@@ -13,10 +14,14 @@ public class Hint<C extends Component> {
 
 
     public static Optional<Hint> create(Component component, String shortcut) {
+        return create(component, () -> shortcut);
+    }
+
+    public static Optional<Hint> create(Component component, Supplier<String> shortcut) {
         if (component instanceof AbstractButton) {
-            return Optional.of(new Hint<>((AbstractButton) component, shortcut, AbstractButton::doClick));
+            return Optional.of(new Hint<>((AbstractButton) component, shortcut.get(), AbstractButton::doClick));
         } else if (component instanceof JTextComponent) {
-            return Optional.of(new Hint<>((JTextComponent) component, shortcut, JTextComponent::requestFocus));
+            return Optional.of(new Hint<>((JTextComponent) component, shortcut.get(), JTextComponent::requestFocus));
         }
         return Optional.empty();
     }

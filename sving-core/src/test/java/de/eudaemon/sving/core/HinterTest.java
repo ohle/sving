@@ -11,15 +11,17 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static de.eudaemon.sving.core.Matchers.*;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class HinterTest {
-    private final Hinter hinter = new Hinter();
+    private final Hinter hinter = new Hinter("abc");
 
     private static FrameFixture window;
 
@@ -78,6 +80,14 @@ public class HinterTest {
     void selectsRadioButton() {
         findHint("radio-button").execute();
         window.radioButton().requireSelected();
+    }
+
+    @Test
+    void constructsMinimalHintsFromCharacters() {
+        assertThat(
+                hinter.findHints(window.target()).map(h -> h.shortcut).collect(Collectors.toSet()),
+                hasItems("a", "b", "c", "ab")
+                );
     }
 
     private Hint findHint(String name) {

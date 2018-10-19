@@ -4,14 +4,16 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Matchers {
 
-    private Matchers() {
+    private static Collector<CharSequence, ?, String> streamJoiner = Collectors.joining("[", ", ", "]");;
 
+    private Matchers() {
     }
 
     public static Matcher<Hint> hasComponentWithName(Matcher<String> name) {
@@ -100,4 +102,5 @@ public class Matchers {
             description.appendText("An empty Stream");
         }
     }
+
 }
