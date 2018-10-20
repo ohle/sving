@@ -11,7 +11,7 @@ public class SwingHinter
     private final String hintChars;
     private final Iterator<String> hints;
 
-    public SwingHinter(String hintChars_) {
+    SwingHinter(String hintChars_) {
         if (hintChars_.length() < 2) {
             throw new IllegalArgumentException("Need at least two allowed hint characters.");
         }
