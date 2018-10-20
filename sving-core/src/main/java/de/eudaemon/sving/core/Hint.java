@@ -7,17 +7,18 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class Hint<C extends Component> {
-    public final C component;
-    public final String shortcut;
+class Hint<C extends Component> {
+    final C component;
+    final String shortcut;
     private final Consumer<C> action;
+    private int inactivePrefixLength;
 
 
-    public static Optional<Hint> create(Component component, String shortcut) {
+    static Optional<Hint> create(Component component, String shortcut) {
         return create(component, () -> shortcut);
     }
 
-    public static Optional<Hint> create(Component component, Supplier<String> shortcut) {
+    static Optional<Hint> create(Component component, Supplier<String> shortcut) {
         if (component instanceof AbstractButton) {
             return Optional.of(new Hint<>((AbstractButton) component, shortcut.get(), AbstractButton::doClick));
         } else if (component instanceof JTextComponent) {
@@ -30,9 +31,40 @@ public class Hint<C extends Component> {
         component = component_;
         shortcut = shortcut_;
         action = action_;
+        inactivePrefixLength = 0;
     }
 
-    public void execute() {
+    private Hint(Hint<C> hint) {
+        component = hint.component;
+        shortcut = hint.shortcut;
+        action = hint.action;
+        inactivePrefixLength = hint.inactivePrefixLength;
+    }
+
+    void execute() {
         action.accept(component);
+    }
+
+    String getInactivePrefix() {
+        return shortcut.substring(0, inactivePrefixLength);
+    }
+
+    String getActiveSuffix() {
+        return shortcut.substring(inactivePrefixLength);
+    }
+
+    Hint afterNextKey() {
+        Hint<C> next = new Hint<>(this);
+        next.inactivePrefixLength = inactivePrefixLength + 1;
+        return next;
+    }
+
+    @Override
+    public String toString() {
+        return "Hint{" +
+                "component=" + component +
+                ", shortcut='" + shortcut + '\'' +
+                ", inactivePrefixLength=" + inactivePrefixLength +
+                '}';
     }
 }
