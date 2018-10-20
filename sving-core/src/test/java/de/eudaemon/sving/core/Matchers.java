@@ -3,8 +3,11 @@ package de.eudaemon.sving.core;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
+import org.hamcrest.TypeSafeMatcher;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -100,6 +103,43 @@ public class Matchers {
         @Override
         public void describeTo(Description description) {
             description.appendText("An empty Stream");
+        }
+    }
+
+    public static <T> Matcher<T> matches(String description, Predicate<T> matches, Function<T, String> describeMismatch) {
+        return new GenericMatcher<>(description, matches, describeMismatch);
+    }
+
+    private static class GenericMatcher<T>
+            extends TypeSafeMatcher<T> {
+
+        private final String descriptionText;
+        private final Predicate<T> matches;
+        private final Function<T, String> describeMismatch;
+
+        private GenericMatcher(
+                String descriptionText_,
+                Predicate<T> matches_,
+                Function<T, String> describeMismatch_
+                ) {
+            descriptionText = descriptionText_;
+            matches = matches_;
+            describeMismatch = describeMismatch_;
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText(descriptionText);
+        }
+
+        @Override
+        protected boolean matchesSafely(T item) {
+            return matches.test(item);
+        }
+
+        @Override
+        protected void describeMismatchSafely(T item, Description mismatchDescription) {
+            mismatchDescription.appendText(describeMismatch.apply(item));
         }
     }
 
