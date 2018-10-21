@@ -4,14 +4,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 class HintingState<CONTAINER> {
-    private final Hinter<CONTAINER> hinter;
+    private final Hinter<CONTAINER, ?> hinter;
     private final List<Listener> listeners = new ArrayList<>();
     private final CONTAINER container;
 
     private boolean active = false;
     private Set<Hint> hints;
 
-    HintingState(Hinter<CONTAINER> hinter_, CONTAINER container_) {
+    HintingState(Hinter<CONTAINER, ?> hinter_, CONTAINER container_) {
         hinter = hinter_;
         container = container_;
     }

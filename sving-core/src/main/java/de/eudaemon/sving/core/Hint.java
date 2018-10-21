@@ -7,18 +7,18 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-class Hint<C extends Component> {
+class Hint<C> {
     final C component;
     final String shortcut;
     private final Consumer<C> action;
     private int inactivePrefixLength;
 
 
-    static Optional<Hint> create(Component component, String shortcut) {
+    static Optional<Hint<? extends Component>> create(Component component, String shortcut) {
         return create(component, () -> shortcut);
     }
 
-    static Optional<Hint> create(Component component, Supplier<String> shortcut) {
+    static Optional<Hint<? extends Component>> create(Component component, Supplier<String> shortcut) {
         if (component instanceof AbstractButton) {
             return Optional.of(new Hint<>((AbstractButton) component, shortcut.get(), AbstractButton::doClick));
         } else if (component instanceof JTextComponent) {

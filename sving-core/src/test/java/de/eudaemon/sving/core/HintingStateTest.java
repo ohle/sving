@@ -28,7 +28,7 @@ class HintingStateTest {
     private Hint hintAB;
     private Hint hintB;
 
-    @Mock Hinter<Object> hinter;
+    @Mock Hinter<Object, Object> hinter;
 
     @Mock HintingState.Listener listener;
 
@@ -39,8 +39,8 @@ class HintingStateTest {
         hintA  = Hint.create(component, "a").get();
         hintAB = Hint.create(component, "ab").get();
         hintB  = Hint.create(component, "b").get();
-        List<Hint> hintsA = List.of(hintA, hintAB, hintB);
-        List<Hint> hintsB = List.of(Hint.create(component, "foo").get());
+        List<Hint<?>> hintsA = List.of(hintA, hintAB, hintB);
+        List<Hint<?>> hintsB = List.of(Hint.create(component, "foo").get());
 
         state = new HintingState<>(hinter, null);
 

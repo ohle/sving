@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class SwingHinter
-        implements Hinter<Container> {
+        implements Hinter<Container, Component> {
 
     private final String hintChars;
     private final Iterator<String> hints;
@@ -20,12 +20,12 @@ public class SwingHinter
     }
 
     @Override
-    public Stream<Hint> findHints(Container container) {
+    public Stream<Hint<? extends Component>> findHints(Container container) {
         return findAllChildren(container)
                 .map(comp -> Hint.create(comp, hints::next))
                 .filter(Optional::isPresent)
-                .map(Optional::get)
-                .filter(h -> h.component.isShowing());
+                .map(Optional::get);
+//                .filter(h -> h.component.isShowing());
     }
 
     private Stream<Component> findAllChildren(Container container) {

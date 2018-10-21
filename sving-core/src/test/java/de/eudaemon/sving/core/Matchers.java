@@ -5,7 +5,9 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.hamcrest.TypeSafeMatcher;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
@@ -19,12 +21,12 @@ public class Matchers {
     private Matchers() {
     }
 
-    public static Matcher<Hint> hasComponentWithName(Matcher<String> name) {
+    public static Matcher<Hint<? extends Component>> hasComponentWithName(Matcher<String> name) {
         return new ComponentWithName(name);
     }
 
     private static class ComponentWithName
-            extends TypeSafeDiagnosingMatcher<Hint> {
+            extends TypeSafeDiagnosingMatcher<Hint<? extends Component>> {
 
         private final Matcher<String> name;
 
@@ -33,7 +35,7 @@ public class Matchers {
         }
 
         @Override
-        protected boolean matchesSafely(Hint item, Description mismatchDescription) {
+        protected boolean matchesSafely(Hint<? extends Component> item, Description mismatchDescription) {
             if (name.matches(item.component.getName())) {
                 return true;
             } else {
@@ -79,30 +81,6 @@ public class Matchers {
         public void describeTo(Description description) {
             description.appendText("A stream containing any element that ");
             element.describeTo(description);
-        }
-    }
-
-    public static Matcher<Stream<?>> empty() {
-        return new EmptyStream();
-    }
-
-    private static class EmptyStream
-            extends TypeSafeDiagnosingMatcher<Stream<?>> {
-
-        @Override
-        protected boolean matchesSafely(Stream<?> item, Description mismatchDescription) {
-            List<?> list = item.collect(Collectors.toList());
-            if (list.isEmpty()) {
-                return true;
-            } else {
-                mismatchDescription.appendText("Contained " + list.size() + " elements");
-                return false;
-            }
-        }
-
-        @Override
-        public void describeTo(Description description) {
-            description.appendText("An empty Stream");
         }
     }
 

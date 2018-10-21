@@ -7,10 +7,12 @@ import org.assertj.swing.finder.WindowFinder;
 import org.assertj.swing.fixture.DialogFixture;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JCheckBoxFixture;
+import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,6 +21,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
 
 public class HinterTest {
     private final SwingHinter hinter = new SwingHinter("abc");
@@ -45,14 +48,14 @@ public class HinterTest {
     @Test
     void skipsIrrelevantComponents() {
         window.tabbedPane().selectTab(0);
-        Stream<Hint> hints = hinter.findHints(window.target());
+        Stream<Hint<? extends Component>> hints = hinter.findHints(window.target());
         assertThat(hints, not(anyMatch(hasComponentWithName(equalTo("label")))));
     }
 
     @Test
     void skipsInvisibleComponents() {
         window.tabbedPane().selectTab(1);
-        assertThat(hinter.findHints(window.target()), empty());
+        assertThat(hinter.findHints(window.target()).collect(Collectors.toList()), empty());
     }
 
     @Test
