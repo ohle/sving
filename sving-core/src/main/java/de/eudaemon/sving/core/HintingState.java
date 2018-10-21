@@ -3,7 +3,7 @@ package de.eudaemon.sving.core;
 import java.util.*;
 import java.util.stream.Collectors;
 
-class HintingState<CONTAINER> {
+public class HintingState<CONTAINER> {
     private final Hinter<CONTAINER, ?> hinter;
     private final List<Listener> listeners = new ArrayList<>();
     private final CONTAINER container;
@@ -11,24 +11,24 @@ class HintingState<CONTAINER> {
     private boolean active = false;
     private Set<Hint> hints;
 
-    HintingState(Hinter<CONTAINER, ?> hinter_, CONTAINER container_) {
+    public HintingState(Hinter<CONTAINER, ?> hinter_, CONTAINER container_) {
         hinter = hinter_;
         container = container_;
     }
 
-    void hotkeyPressed() {
+    public void hotkeyPressed() {
         active = true;
         hints = hinter.findHints(container).collect(Collectors.toSet());
         fireHintsChangedEvent();
     }
 
-    void escapePressed() {
+    public void escapePressed() {
         active = false;
         hints = Collections.emptySet();
         fireStop();
     }
 
-    void keyPressed(char key) {
+    public void keyPressed(char key) {
         if (!active) {
             return;
         }
@@ -43,7 +43,7 @@ class HintingState<CONTAINER> {
         }
     }
 
-    void addListener(Listener listener) {
+    public void addListener(Listener listener) {
         listeners.add(listener);
     }
 
@@ -55,9 +55,9 @@ class HintingState<CONTAINER> {
         listeners.forEach(Listener::stopShowing);
     }
 
-    public interface Listener {
+    public interface Listener<COMPONENT> {
 
-        void showHints(Collection<Hint> hints);
+        void showHints(Collection<Hint<COMPONENT>> hints);
 
         void stopShowing();
     }

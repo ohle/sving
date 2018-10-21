@@ -1,6 +1,9 @@
 package de.eudaemon.sving.core.manager;
 
+import de.eudaemon.sving.core.Hinter;
+import de.eudaemon.sving.core.HintingState;
 import de.eudaemon.sving.core.SvingGlassPane;
+import de.eudaemon.sving.core.SwingHinter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,6 +20,8 @@ public class SvingWindowManager {
 
     private RootPaneContainer currentlyFocusedWindow = null;
     private SvingGlassPane installedGlassPane = null;
+    private final Hinter<Container, Component> hinter = new SwingHinter("abc");
+    private HintingState<Container> hintingState = null;
 
     private static final Logger LOG = Logger.getLogger(SvingWindowManager.class.getName());
 
@@ -36,7 +41,15 @@ public class SvingWindowManager {
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
                 if (isHotkey(e) && e.getID() == KeyEvent.KEY_RELEASED) {
-                    System.out.println("SvingWindowManager.dispatchKeyEvent");
+                    if (hintingState != null) {
+                        hintingState.hotkeyPressed();
+                    }
+                    return true;
+                } else if (e.getID() == KeyEvent.KEY_RELEASED && hinter.isAllowedHintChar(e.getKeyChar())) {
+                    hintingState.keyPressed(e.getKeyChar());
+                    return true;
+                } else if (e.getID() == KeyEvent.KEY_RELEASED && e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    hintingState.escapePressed();
                     return true;
                 }
                 return false;
@@ -70,6 +83,8 @@ public class SvingWindowManager {
         }
         installedGlassPane = new SvingGlassPane(currentlyFocusedWindow);
         newWindow.setGlassPane(installedGlassPane);
+        HintingState<Container> hintingState = new HintingState<>(hinter, newWindow.getContentPane());
+        hintingState.addListener(installedGlassPane);
         LOG.fine("Installed GlassPane on " + newWindow);
     }
 }

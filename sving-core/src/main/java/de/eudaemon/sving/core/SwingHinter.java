@@ -11,7 +11,7 @@ public class SwingHinter
     private final String hintChars;
     private final Iterator<String> hints;
 
-    SwingHinter(String hintChars_) {
+    public SwingHinter(String hintChars_) {
         if (hintChars_.length() < 2) {
             throw new IllegalArgumentException("Need at least two allowed hint characters.");
         }
@@ -21,11 +21,18 @@ public class SwingHinter
 
     @Override
     public Stream<Hint<? extends Component>> findHints(Container container) {
-        return findAllChildren(container)
+        // Needs to be split into two statements because IDEA (and older javac)'s type inference can't cope
+        Stream<Hint<? extends Component>> allHints = findAllChildren(container)
                 .map(comp -> Hint.create(comp, hints::next))
                 .filter(Optional::isPresent)
                 .map(Optional::get);
-//                .filter(h -> h.component.isShowing());
+        return allHints
+                .filter(h -> h.component.isShowing());
+    }
+
+    @Override
+    public boolean isAllowedHintChar(char keyChar) {
+        return hintChars.indexOf(keyChar) >= 0;
     }
 
     private Stream<Component> findAllChildren(Container container) {
