@@ -92,6 +92,7 @@ public class SvingWindowManager {
         newWindow.setGlassPane(installedGlassPane);
         HintingState<Container> hintingState = new HintingState<>(hinter, newWindow.getContentPane());
         hintingState.addListener(installedGlassPane);
+        this.hintingState = hintingState;
         LOG.fine("Installed GlassPane on " + newWindow);
     }
 }
