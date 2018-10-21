@@ -53,6 +53,10 @@ class Hint<C> {
         return shortcut.substring(inactivePrefixLength);
     }
 
+    int getSuffixIndex() {
+        return inactivePrefixLength;
+    }
+
     Hint afterNextKey() {
         Hint<C> next = new Hint<>(this);
         next.inactivePrefixLength = inactivePrefixLength + 1;
