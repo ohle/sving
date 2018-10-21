@@ -40,15 +40,22 @@ public class SvingWindowManager {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
-                if (isHotkey(e) && e.getID() == KeyEvent.KEY_RELEASED) {
-                    if (hintingState != null) {
-                        hintingState.hotkeyPressed();
-                    }
+                if (e.getID() != KeyEvent.KEY_RELEASED) {
+                    return false;
+                }
+                if (hintingState == null) {
+                    return false;
+                }
+                if (isHotkey(e)) {
+                    LOG.finer("Hotkey received");
+                    hintingState.hotkeyPressed();
                     return true;
-                } else if (e.getID() == KeyEvent.KEY_RELEASED && hinter.isAllowedHintChar(e.getKeyChar())) {
+                } else if (hinter.isAllowedHintChar(e.getKeyChar())) {
+                    LOG.finer("Hint refinement: " + e.getKeyChar());
                     hintingState.keyPressed(e.getKeyChar());
                     return true;
-                } else if (e.getID() == KeyEvent.KEY_RELEASED && e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    LOG.finer("Hinting aborted");
                     hintingState.escapePressed();
                     return true;
                 }
