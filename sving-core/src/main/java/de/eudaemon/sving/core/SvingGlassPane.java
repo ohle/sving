@@ -19,7 +19,9 @@ public class SvingGlassPane
 
     @Override
     public void paintComponent(Graphics g) {
-        original.paint(g);
+        if (original != null) {
+            original.repaint();
+        }
         g.setColor(Color.YELLOW);
         visibleHints.forEach(hint -> {
             g.fillRect(hint.component.getX(), hint.component.getY(), 10, 10);
