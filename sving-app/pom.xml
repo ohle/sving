@@ -55,6 +55,21 @@
                     </archive>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <configuration>
+                    <skip>false</skip>
+                    <executable>java</executable>
+                    <mainClass>de.eudaemon.sving.CLI</mainClass>
+                    <arguments>
+                        <argument>--jar</argument>
+                        <argument>sving-testapp/target/sving.testapp-${project.version}.jar</argument>
+                        <argument>-vv</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
