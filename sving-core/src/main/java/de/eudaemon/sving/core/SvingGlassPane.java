@@ -2,8 +2,11 @@ package de.eudaemon.sving.core;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.font.TextAttribute;
+import java.text.AttributedString;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.logging.Logger;
 
 public class SvingGlassPane
         extends JComponent
@@ -11,6 +14,7 @@ public class SvingGlassPane
 
     private final Component original;
     private Collection<Hint<Component>> visibleHints = Collections.emptySet();
+    private static final Logger LOG = Logger.getLogger(SvingGlassPane.class.getName());
 
     public SvingGlassPane(RootPaneContainer container_) {
         original = container_.getGlassPane();
@@ -19,13 +23,31 @@ public class SvingGlassPane
 
     @Override
     public void paintComponent(Graphics g) {
-        if (original != null) {
-            original.repaint();
-        }
+        visibleHints.forEach(hint -> paintHint(g, hint));
+    }
+
+    private void paintHint(Graphics g, Hint<Component> h) {
+        LOG.finer("drawing hint '" + h.shortcut + "' for " + h.component);
         g.setColor(Color.YELLOW);
-        visibleHints.forEach(hint -> {
-            g.fillRect(hint.component.getX(), hint.component.getY(), 10, 10);
-        });
+        Point corner = SwingUtilities.convertPoint(
+                h.component.getParent(),
+                h.component.getX(),
+                h.component.getY(),
+                this
+            );
+        AttributedString hintText = new AttributedString(h.shortcut);
+        if (h.getSuffixIndex() <= h.shortcut.length()) {
+            hintText.addAttribute(
+                    TextAttribute.WEIGHT,
+                    TextAttribute.WEIGHT_BOLD,
+                    h.getSuffixIndex(),
+                    h.shortcut.length()
+            );
+        }
+        g.fillRect(corner.x, corner.y, 10, 10);
+        g.setColor(Color.BLACK);
+        g.drawString(hintText.getIterator(), corner.x, corner.y);
+
     }
 
     public Component getOriginal() {
