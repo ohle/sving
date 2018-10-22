@@ -47,7 +47,7 @@ public class SvingWindowManager {
                     return false;
                 }
                 if (isHotkey(e)) {
-                    LOG.finer("Hotkey received");
+                    LOG.fine("Hotkey received");
                     hintingState.hotkeyPressed();
                     return true;
                 } else if (hinter.isAllowedHintChar(e.getKeyChar())) {
@@ -55,7 +55,7 @@ public class SvingWindowManager {
                     hintingState.keyPressed(e.getKeyChar());
                     return true;
                 } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    LOG.finer("Hinting aborted");
+                    LOG.fine("Hinting aborted");
                     hintingState.escapePressed();
                     return true;
                 }
