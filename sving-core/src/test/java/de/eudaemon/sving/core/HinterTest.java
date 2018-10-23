@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,6 +23,7 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HinterTest {
     private final SwingHinter hinter = new SwingHinter("abc");
@@ -91,6 +93,13 @@ public class HinterTest {
                 hinter.findHints(window.target()).map(h -> h.shortcut).collect(Collectors.toSet()),
                 hasItems("a", "b", "c", "ab")
                 );
+    }
+
+    @Test
+    void shouldReproduceResults() {
+        List<Hint<? extends Component>> first = hinter.findHints(window.target()).collect(Collectors.toList());
+        List<Hint<? extends Component>> second = hinter.findHints(window.target()).collect(Collectors.toList());
+        assertEquals(first, second);
     }
 
     private Hint findHint(String name) {

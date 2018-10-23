@@ -3,6 +3,7 @@ package de.eudaemon.sving.core;
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -66,9 +67,24 @@ class Hint<C> {
     @Override
     public String toString() {
         return "Hint{" +
-                "component=" + component +
+                "component=" + component.getClass().getSimpleName() +
                 ", shortcut='" + shortcut + '\'' +
                 ", inactivePrefixLength=" + inactivePrefixLength +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o_) {
+        if (this == o_) return true;
+        if (o_ == null || getClass() != o_.getClass()) return false;
+        Hint<?> hint = (Hint<?>) o_;
+        return inactivePrefixLength == hint.inactivePrefixLength &&
+                Objects.equals(component, hint.component) &&
+                Objects.equals(shortcut, hint.shortcut);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(component, shortcut, inactivePrefixLength);
     }
 }

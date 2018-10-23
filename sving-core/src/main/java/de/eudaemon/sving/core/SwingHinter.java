@@ -9,18 +9,17 @@ public class SwingHinter
         implements Hinter<Container, Component> {
 
     private final String hintChars;
-    private final Iterator<String> hints;
 
     public SwingHinter(String hintChars_) {
         if (hintChars_.length() < 2) {
             throw new IllegalArgumentException("Need at least two allowed hint characters.");
         }
         hintChars = hintChars_;
-        hints = new Hints();
     }
 
     @Override
     public Stream<Hint<? extends Component>> findHints(Container container) {
+        Iterator<String> hints = new Hints();
         // Needs to be split into two statements because IDEA (and older javac)'s type inference can't cope
         Stream<Hint<? extends Component>> allHints = findAllChildren(container)
                 .map(comp -> Hint.create(comp, hints::next))
