@@ -57,8 +57,8 @@ public class CLI {
                     help();
                     System.exit(1);
             }
-            setupLogging(logLevel);
         }
+        setupLogging(logLevel);
     }
 
     private static void setupLogging(Level logLevel) {
