@@ -13,7 +13,7 @@ public class SvingGlassPane
         implements HintingState.Listener<Component> {
 
     private final Component original;
-    private Collection<Hint<Component>> visibleHints = Collections.emptySet();
+    private Collection<Hint<? extends Component>> visibleHints = Collections.emptySet();
     private static final Logger LOG = Logger.getLogger(SvingGlassPane.class.getName());
 
     public SvingGlassPane(RootPaneContainer container_) {
@@ -26,7 +26,7 @@ public class SvingGlassPane
         visibleHints.forEach(hint -> paintHint(g, hint));
     }
 
-    private void paintHint(Graphics g, Hint<Component> h) {
+    private void paintHint(Graphics g, Hint<? extends Component> h) {
         LOG.finer("drawing hint '" + h.shortcut + "' for " + h.component);
         g.setColor(Color.YELLOW);
         Point corner = SwingUtilities.convertPoint(
@@ -47,7 +47,6 @@ public class SvingGlassPane
         g.fillRect(corner.x, corner.y, 10, 10);
         g.setColor(Color.BLACK);
         g.drawString(hintText.getIterator(), corner.x, corner.y);
-
     }
 
     public Component getOriginal() {
@@ -55,7 +54,7 @@ public class SvingGlassPane
     }
 
     @Override
-    public void showHints(Collection<Hint<Component>> hints) {
+    public void showHints(Collection<Hint<? extends Component>> hints) {
         setVisible(true);
         visibleHints = hints;
         repaint();

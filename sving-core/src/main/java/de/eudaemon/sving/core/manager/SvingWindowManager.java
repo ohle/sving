@@ -21,7 +21,7 @@ public class SvingWindowManager {
     private RootPaneContainer currentlyFocusedWindow = null;
     private SvingGlassPane installedGlassPane = null;
     private final Hinter<Container, Component> hinter = new SwingHinter("abc");
-    private HintingState<Container> hintingState = null;
+    private HintingState<Container, Component> hintingState = null;
 
     private static final Logger LOG = Logger.getLogger(SvingWindowManager.class.getName());
 
@@ -90,7 +90,7 @@ public class SvingWindowManager {
         }
         installedGlassPane = new SvingGlassPane(currentlyFocusedWindow);
         newWindow.setGlassPane(installedGlassPane);
-        HintingState<Container> hintingState = new HintingState<>(hinter, newWindow.getContentPane());
+        HintingState<Container, Component> hintingState = new HintingState<>(hinter, newWindow.getContentPane());
         hintingState.addListener(installedGlassPane);
         this.hintingState = hintingState;
         LOG.fine("Installed GlassPane on " + newWindow);

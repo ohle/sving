@@ -32,7 +32,7 @@ class HintingStateTest {
 
     @Mock HintingState.Listener listener;
 
-    private HintingState<Object> state;
+    private HintingState<Object, Object> state;
 
     @BeforeEach
     void setup() {

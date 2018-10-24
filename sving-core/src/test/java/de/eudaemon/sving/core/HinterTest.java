@@ -7,7 +7,6 @@ import org.assertj.swing.finder.WindowFinder;
 import org.assertj.swing.fixture.DialogFixture;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JCheckBoxFixture;
-import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -17,10 +16,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static de.eudaemon.sving.core.Matchers.*;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.not;
+import static de.eudaemon.sving.core.Matchers.anyMatch;
+import static de.eudaemon.sving.core.Matchers.hasComponentWithName;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;

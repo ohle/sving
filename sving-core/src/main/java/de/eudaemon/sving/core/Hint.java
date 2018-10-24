@@ -58,7 +58,7 @@ class Hint<C> {
         return inactivePrefixLength;
     }
 
-    Hint afterNextKey() {
+    Hint<C> afterNextKey() {
         Hint<C> next = new Hint<>(this);
         next.inactivePrefixLength = inactivePrefixLength + 1;
         return next;
