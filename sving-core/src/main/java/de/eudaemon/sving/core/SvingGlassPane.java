@@ -6,6 +6,7 @@ import java.awt.font.TextAttribute;
 import java.text.AttributedString;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SvingGlassPane
@@ -23,7 +24,9 @@ public class SvingGlassPane
 
     @Override
     public void paintComponent(Graphics g) {
+        Color color = g.getColor();
         visibleHints.forEach(hint -> paintHint(g, hint));
+        g.setColor(color);
     }
 
     private void paintHint(Graphics g, Hint<? extends Component> h) {
@@ -36,7 +39,7 @@ public class SvingGlassPane
                 this
             );
         AttributedString hintText = new AttributedString(h.shortcut);
-        if (h.getSuffixIndex() <= h.shortcut.length()) {
+        if (h.getSuffixIndex() < h.shortcut.length()) {
             hintText.addAttribute(
                     TextAttribute.WEIGHT,
                     TextAttribute.WEIGHT_BOLD,
