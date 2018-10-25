@@ -4,6 +4,8 @@ import de.eudaemon.sving.core.manager.SvingWindowManager;
 import de.eudaemon.util.UnanticipatedException;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -19,6 +21,8 @@ import java.util.logging.*;
 
 public class CLI {
     private static Logger log = Logger.getLogger(CLI.class.getName());
+
+    private static Logger rootLogger = Logger.getLogger("de.eudaemon.sving");
 
     public static void main(String[] args_) {
         Queue<String> args = new LinkedList<>(Arrays.asList(args_));
@@ -59,10 +63,10 @@ public class CLI {
             }
         }
         setupLogging(logLevel);
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> rootLogger.log(Level.SEVERE, "Uncaught Exception", e));
     }
 
     private static void setupLogging(Level logLevel) {
-        Logger rootLogger = Logger.getLogger("de.eudaemon.sving");
         var handler = new ConsoleHandler(){ public void init() { setOutputStream(System.out);} };
         handler.init();
         handler.setLevel(logLevel);
@@ -71,7 +75,14 @@ public class CLI {
         SimpleFormatter formatter = new SimpleFormatter() {
             @Override
             public String format(LogRecord record) {
-                return String.format("[%s] %s\n", record.getLevel(), record.getMessage());
+                String output = String.format("[%s] %s\n", record.getLevel(), record.getMessage());
+                if (record.getThrown() != null) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    record.getThrown().printStackTrace(pw);
+                    output = output + sw.toString();
+                }
+                return output;
             }
         };
         handler.setFormatter(formatter);
