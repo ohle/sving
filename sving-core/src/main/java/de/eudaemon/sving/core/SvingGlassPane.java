@@ -3,6 +3,7 @@ package de.eudaemon.sving.core;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.font.TextAttribute;
+import java.awt.font.TextLayout;
 import java.text.AttributedString;
 import java.util.Collection;
 import java.util.Collections;
@@ -23,12 +24,13 @@ public class SvingGlassPane
 
     @Override
     public void paintComponent(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
         Color color = g.getColor();
-        visibleHints.forEach(hint -> paintHint(g, hint));
+        visibleHints.forEach(hint -> paintHint(g2d, hint));
         g.setColor(color);
     }
 
-    private void paintHint(Graphics g, Hint<? extends Component> h) {
+    private void paintHint(Graphics2D g, Hint<? extends Component> h) {
         LOG.finer("drawing hint '" + h.shortcut + "' for " + h.component);
         g.setColor(Solarized.BASE3);
         Point corner = SwingUtilities.convertPoint(
@@ -46,9 +48,14 @@ public class SvingGlassPane
                     h.shortcut.length()
             );
         }
-        g.fillRect(corner.x, corner.y, 10, 10);
+        TextLayout layout = new TextLayout(hintText.getIterator(), g.getFontRenderContext());
+        final int padding = 2;
+        final int height = (int) (layout.getAscent() +  2 * padding);
+        final int width = (int) (layout.getAdvance() + 2 * padding);
+        g.fillRect(corner.x, corner.y, width, height);
         g.setColor(Solarized.BASE02);
-        g.drawString(hintText.getIterator(), corner.x, corner.y);
+        g.drawRect(corner.x, corner.y, width, height);
+        g.drawString(hintText.getIterator(), corner.x + padding, corner.y + layout.getAscent() + padding);
     }
 
     public Component getOriginal() {
