@@ -6,7 +6,6 @@ import java.awt.font.TextAttribute;
 import java.text.AttributedString;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SvingGlassPane
@@ -31,7 +30,7 @@ public class SvingGlassPane
 
     private void paintHint(Graphics g, Hint<? extends Component> h) {
         LOG.finer("drawing hint '" + h.shortcut + "' for " + h.component);
-        g.setColor(Color.YELLOW);
+        g.setColor(Solarized.BASE3);
         Point corner = SwingUtilities.convertPoint(
                 h.component.getParent(),
                 h.component.getX(),
@@ -48,7 +47,7 @@ public class SvingGlassPane
             );
         }
         g.fillRect(corner.x, corner.y, 10, 10);
-        g.setColor(Color.BLACK);
+        g.setColor(Solarized.BASE02);
         g.drawString(hintText.getIterator(), corner.x, corner.y);
     }
 
