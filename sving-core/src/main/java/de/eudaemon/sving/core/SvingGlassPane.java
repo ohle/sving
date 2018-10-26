@@ -39,6 +39,18 @@ public class SvingGlassPane
                 h.component.getY(),
                 this
             );
+        AttributedString hintText = highlightShortcut(h);
+        TextLayout layout = new TextLayout(hintText.getIterator(), g.getFontRenderContext());
+        final int padding = 2;
+        final int height = (int) (layout.getAscent() +  2 * padding);
+        final int width = (int) (layout.getAdvance() + 2 * padding);
+        g.fillRect(corner.x, corner.y, width, height);
+        g.setColor(Solarized.BASE02);
+        g.drawRect(corner.x, corner.y, width, height);
+        g.drawString(hintText.getIterator(), corner.x + padding, corner.y + layout.getAscent() + padding);
+    }
+
+    private AttributedString highlightShortcut(Hint<? extends Component> h) {
         AttributedString hintText = new AttributedString(h.shortcut);
         if (h.getSuffixIndex() < h.shortcut.length()) {
             hintText.addAttribute(
@@ -48,14 +60,7 @@ public class SvingGlassPane
                     h.shortcut.length()
             );
         }
-        TextLayout layout = new TextLayout(hintText.getIterator(), g.getFontRenderContext());
-        final int padding = 2;
-        final int height = (int) (layout.getAscent() +  2 * padding);
-        final int width = (int) (layout.getAdvance() + 2 * padding);
-        g.fillRect(corner.x, corner.y, width, height);
-        g.setColor(Solarized.BASE02);
-        g.drawRect(corner.x, corner.y, width, height);
-        g.drawString(hintText.getIterator(), corner.x + padding, corner.y + layout.getAscent() + padding);
+        return hintText;
     }
 
     public Component getOriginal() {
