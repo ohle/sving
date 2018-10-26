@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.font.FontRenderContext;
 import java.text.AttributedCharacterIterator;
 import java.text.CharacterIterator;
 import java.util.List;
@@ -39,9 +40,15 @@ class SvingGlassPaneTest {
         JButton button = mock(JButton.class);
         when(button.getParent()).thenReturn(root);
         when(root.getLocationOnScreen()).thenReturn(new Point(0, 0));
+        setupG2D();
         hintA = Hint.create(button, "a").get();
         hintB = Hint.create(button, "b").get();
         hintC = Hint.create(button, "c").get();
+    }
+
+    private void setupG2D() {
+        FontRenderContext frc = mock(FontRenderContext.class, RETURNS_DEEP_STUBS);
+        when(graphics2D.getFontRenderContext()).thenReturn(frc);
     }
 
     @Test
@@ -56,11 +63,11 @@ class SvingGlassPaneTest {
     void onlyDrawsCurrentHints() {
         pane.showHints(List.of(hintA));
         pane.paintComponent(graphics2D);
-        verify(graphics2D).drawString(argThat(printsAs(equalTo("a"))), anyInt(), anyInt());
+        verify(graphics2D).drawString(argThat(printsAs(equalTo("a"))), anyFloat(), anyFloat());
         pane.showHints((List.of(hintB)));
         pane.paintComponent(graphics2D);
-        verify(graphics2D).drawString(argThat(printsAs(equalTo("b"))), anyInt(), anyInt());
-        verify(graphics2D, times(2)).drawString(any(AttributedCharacterIterator.class), anyInt(), anyInt());
+        verify(graphics2D).drawString(argThat(printsAs(equalTo("b"))), anyFloat(), anyFloat());
+        verify(graphics2D, times(2)).drawString(any(AttributedCharacterIterator.class), anyFloat(), anyFloat());
     }
 
     private ACIMatcher printsAs(Matcher<String> m) {
