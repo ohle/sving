@@ -94,7 +94,7 @@ public class HinterTest {
     }
 
     @Test
-    void shouldReproduceResults() {
+    void reproducesResults() {
         List<Hint<? extends Component>> first = hinter.findHints(window.target()).collect(Collectors.toList());
         List<Hint<? extends Component>> second = hinter.findHints(window.target()).collect(Collectors.toList());
         assertEquals(first, second);
