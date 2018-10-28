@@ -16,6 +16,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
@@ -99,6 +100,24 @@ class HintingStateTest {
     void propagatesUserCancelEvent() {
         state.addListener(listener);
         state.escapePressed();
+        verify(listener).stopShowing();
+    }
+
+    @Test
+    void executesLastRemainingHint() {
+        state.addListener(listener);
+        state.hotkeyPressed();
+        state.keyPressed('a');
+        state.keyPressed('b');
+        verify(component).doClick();
+    }
+
+    @Test
+    void cancelsHintingAfterExecute() {
+        state.addListener(listener);
+        state.hotkeyPressed();
+        state.keyPressed('a');
+        state.keyPressed('b');
         verify(listener).stopShowing();
     }
 

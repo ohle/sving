@@ -39,6 +39,9 @@ public class HintingState<CONTAINER, COMPONENT> {
         if (hints.isEmpty()) {
             active = false;
             fireStop();
+        } else if (hints.size() == 1) {
+            hints.iterator().next().execute();
+            fireStop();
         } else {
             fireHintsChangedEvent();
         }
