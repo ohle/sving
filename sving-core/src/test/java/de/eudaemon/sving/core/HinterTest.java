@@ -15,7 +15,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -24,7 +27,6 @@ import static de.eudaemon.sving.core.Matchers.anyMatch;
 import static de.eudaemon.sving.core.Matchers.hasComponentWithName;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
@@ -125,6 +127,27 @@ public class HinterTest {
                 everyItem(iterableWithSize(lessThanOrEqualTo(maxLength))
                 ));
     }
+
+    @ParameterizedTest
+    @ValueSource(ints = {5, 10, 30, 543})
+    void noShortcutIsThePrefixOfAnother(int total) {
+        SwingHinter hinter = new SwingHinter("abc");
+        List<String> shortcuts =
+                hinter.findHints(containerWithButtons(total))
+                        .map(h -> h.shortcut)
+                        .sorted(Comparator.comparing(String::length))
+                        .collect(Collectors.toList());
+
+        Map<String, List<String>> pairsToCheck = new HashMap<>();
+        shortcuts.forEach(sc -> pairsToCheck.put(
+                sc,
+                shortcuts.stream()
+                        .dropWhile(s -> s.length() <= sc.length())
+                        .collect(Collectors.toList()))
+                );
+        pairsToCheck.forEach( (prefix, longer) -> assertThat(longer, not(hasItem(startsWith(prefix)))));
+    }
+
 
     private List<Character> toCharList(Hint<? extends Component> h) {
         return h.shortcut.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
