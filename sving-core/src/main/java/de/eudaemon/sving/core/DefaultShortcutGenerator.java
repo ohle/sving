@@ -1,6 +1,6 @@
 package de.eudaemon.sving.core;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class DefaultShortcutGenerator
@@ -19,10 +19,15 @@ public class DefaultShortcutGenerator
 
     @Override
     public List<String> generate(int size_) {
-        List<String> dummy = new ArrayList<>();
-        for (int i=0; i<size_; i++) {
-            dummy.add(i, "");
+        LinkedList<String> generated = new LinkedList<>();
+        generated.push("");
+        while (generated.size() < size_) {
+            String currentPrefix = generated.pop();
+            int runLength = Math.min(allowedCharacters.length(), size_ - generated.size());
+            for (int i=0; i < runLength; i++) {
+                generated.add(currentPrefix + allowedCharacters.charAt(i));
+            }
         }
-        return dummy;
+        return generated;
     }
 }
