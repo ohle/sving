@@ -110,7 +110,7 @@ public class HinterTest {
 
     private static Stream<Hint<? extends Component>> lotsOfHints() {
         SwingHinter hinter = new SwingHinter("abc");
-        return hinter.findHints(containerWithButtons(20)).peek(System.out::println);
+        return hinter.findHints(containerWithButtons(20));
     }
 
     private static Container containerWithButtons(int n) {
