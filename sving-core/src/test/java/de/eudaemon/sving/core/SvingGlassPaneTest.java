@@ -55,8 +55,8 @@ class SvingGlassPaneTest {
     void drawsCorrectHints() {
         pane.showHints(List.of(hintA));
         pane.paintComponent(graphics2D);
-        verify(graphics2D).drawString(argThat(printsAs(equalTo("a"))), anyInt(), anyInt());
-        verify(graphics2D, times(1)).drawString(any(AttributedCharacterIterator.class), anyInt(), anyInt());
+        verify(graphics2D).drawString(argThat(printsAs(equalTo("a"))), anyFloat(), anyFloat());
+        verify(graphics2D, times(1)).drawString(any(AttributedCharacterIterator.class), anyFloat(), anyFloat());
     }
 
     @Test
