@@ -1,9 +1,6 @@
 package de.eudaemon.sving.core.manager;
 
-import de.eudaemon.sving.core.Hinter;
-import de.eudaemon.sving.core.HintingState;
-import de.eudaemon.sving.core.SvingGlassPane;
-import de.eudaemon.sving.core.SwingHinter;
+import de.eudaemon.sving.core.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,7 +17,7 @@ public class SvingWindowManager {
 
     private RootPaneContainer currentlyFocusedWindow = null;
     private SvingGlassPane installedGlassPane = null;
-    private final Hinter<Container, Component> hinter = new SwingHinter("abc");
+    private final Hinter<Container, Component> hinter = new SwingHinter(new DefaultShortcutGenerator("abc"));
     private HintingState<Container, Component> hintingState = null;
 
     private static final Logger LOG = Logger.getLogger(SvingWindowManager.class.getName());

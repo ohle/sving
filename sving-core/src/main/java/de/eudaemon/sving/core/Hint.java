@@ -32,16 +32,16 @@ class Hint<C> {
         SUPPORTED_ACTIONS.add(new Action<>(JTextComponent.class, JTextComponent::requestFocusInWindow));
     }
 
-    static Optional<Hint<? extends Component>> create(Component component, String shortcut) {
-        return create(component, () -> shortcut);
-    }
-
     @SuppressWarnings("unchecked")
-    static Optional<Hint<? extends Component>> create(Component component, Supplier<String> shortcut) {
+    static Optional<Hint<? extends Component>> create(Component component, String shortcut) {
         return SUPPORTED_ACTIONS.stream()
                 .filter(a -> a.supports(component))
                 .findFirst()
-                .map(a -> new Hint<>(component, shortcut.get(), a.action));
+                .map(a -> new Hint<>(component, shortcut, a.action));
+    }
+
+    static boolean supportsComponent(Object component) {
+        return SUPPORTED_ACTIONS.stream().anyMatch(a -> a.supports(component));
     }
 
     private Hint(C component_, String shortcut_, Consumer<C> action_) {

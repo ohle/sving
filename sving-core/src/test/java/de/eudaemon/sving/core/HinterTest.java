@@ -9,34 +9,23 @@ import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JCheckBoxFixture;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static de.eudaemon.sving.core.Matchers.anyMatch;
 import static de.eudaemon.sving.core.Matchers.hasComponentWithName;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.iterableWithSize;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
-import static org.hamcrest.collection.IsIn.isIn;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class HinterTest {
-    private final SwingHinter hinter = new SwingHinter("abc");
+    private final SwingHinter hinter = new SwingHinter(new DefaultShortcutGenerator("abc"));
 
     private static FrameFixture window;
 
@@ -103,75 +92,6 @@ public class HinterTest {
         List<Hint<? extends Component>> second = hinter.findHints(window.target()).collect(Collectors.toList());
         assertEquals(first, second);
     }
-
-    @ParameterizedTest
-    @MethodSource("lotsOfHints")
-    void usesOnlyAllowedCharacters(Hint<? extends Component> h) {
-        List<Character> allowed = List.of('a', 'b', 'c');
-        assertThat(
-                toCharList(h),
-                everyItem(isIn(allowed))
-                );
-    }
-
-    @ParameterizedTest
-    @ValueSource(ints = {5, 10, 30, 543})
-    void doesNotProduceUnnecessarilyLongShortcuts(int total) {
-        SwingHinter hinter = new SwingHinter("abc");
-        Stream<List<Character>> shortcuts =
-                hinter.findHints(containerWithButtons(total))
-                        .map(this::toCharList);
-        int maxLength = (int) Math.ceil(Math.log(total) / Math.log(3));
-        assertThat(
-                shortcuts.collect(Collectors.toList()),
-                everyItem(iterableWithSize(lessThanOrEqualTo(maxLength))
-                ));
-    }
-
-    @ParameterizedTest
-    @ValueSource(ints = {5, 10, 30, 543})
-    void noShortcutIsThePrefixOfAnother(int total) {
-        SwingHinter hinter = new SwingHinter("abc");
-        List<String> shortcuts =
-                hinter.findHints(containerWithButtons(total))
-                        .map(h -> h.shortcut)
-                        .sorted(Comparator.comparing(String::length))
-                        .collect(Collectors.toList());
-
-        Map<String, List<String>> pairsToCheck = new HashMap<>();
-        shortcuts.forEach(sc -> pairsToCheck.put(
-                sc,
-                shortcuts.stream()
-                        .dropWhile(s -> s.length() <= sc.length())
-                        .collect(Collectors.toList()))
-                );
-        pairsToCheck.forEach( (prefix, longer) -> assertThat(longer, not(hasItem(startsWith(prefix)))));
-    }
-
-
-    private List<Character> toCharList(Hint<? extends Component> h) {
-        return h.shortcut.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
-    }
-
-    private static Stream<Hint<? extends Component>> lotsOfHints() {
-        SwingHinter hinter = new SwingHinter("abc");
-        return hinter.findHints(containerWithButtons(20));
-    }
-
-    private static Container containerWithButtons(int n) {
-        Container container = mock(Container.class);
-        JButton[] buttons = IntStream.range(0, n).mapToObj(i -> mockButton()).toArray(JButton[]::new);
-        when(container.getComponents()).thenReturn(buttons);
-        return container;
-    }
-
-    private static JButton mockButton() {
-        JButton b = mock(JButton.class);
-        when(b.isShowing()).thenReturn(true);
-        when(b.getComponents()).thenReturn(new Component[]{});
-        return b;
-    }
-
     private Hint findHint(String name) {
         return hinter.findHints(window.target())
                 .filter(h -> h.component.getName().equals(name))

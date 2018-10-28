@@ -2,36 +2,36 @@ package de.eudaemon.sving.core;
 
 import java.awt.*;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SwingHinter
         implements Hinter<Container, Component> {
 
-    private final String hintChars;
+    private final ShortcutGenerator shortcutGenerator;
 
-    public SwingHinter(String hintChars_) {
-        if (hintChars_.length() < 2) {
-            throw new IllegalArgumentException("Need at least two allowed hint characters.");
-        }
-        hintChars = hintChars_;
+    public SwingHinter(ShortcutGenerator shortcuts_) {
+        shortcutGenerator = shortcuts_;
     }
 
     @Override
     public Stream<Hint<? extends Component>> findHints(Container container) {
-        Iterator<String> hints = new Hints();
-        // Needs to be split into two statements because IDEA (and older javac)'s type inference can't cope
-        Stream<Hint<? extends Component>> allHints = findAllChildren(container)
-                .map(comp -> Hint.create(comp, hints::next))
-                .filter(Optional::isPresent)
+        List<? extends Component> eligibleComponents = findAllChildren(container)
+                .filter(Hint::supportsComponent)
+                .filter(Component::isShowing)
+                .collect(Collectors.toList());
+        Iterator<String> shortcuts = shortcutGenerator.generate(eligibleComponents.size()).iterator();
+        return eligibleComponents.stream()
+                .map(c -> Hint.create(c, shortcuts.next()))
                 .map(Optional::get);
-        return allHints
-                .filter(h -> h.component.isShowing());
     }
 
     @Override
     public boolean isAllowedHintChar(char keyChar) {
-        return hintChars.indexOf(keyChar) >= 0;
+        return shortcutGenerator.isAllowedHintChar(keyChar);
     }
 
     private Stream<Component> findAllChildren(Container container) {
@@ -46,30 +46,6 @@ public class SwingHinter
             for (Component child : ((Container) component).getComponents()) {
                 addAllChildren(child, builder);
             }
-        }
-    }
-
-    private class Hints
-            implements Iterator<String> {
-
-        private int idx = 0;
-        private final int base = hintChars.length();
-
-        @Override
-        public String next() {
-            StringBuilder hint = new StringBuilder();
-            int n = idx;
-            do {
-                hint.append(hintChars.charAt(n % base));
-                n /= base;
-            } while (n != 0);
-            idx++;
-            return hint.toString();
-        }
-
-        @Override
-        public boolean hasNext() {
-            return true;
         }
     }
 }
