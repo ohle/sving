@@ -3,8 +3,7 @@ package de.eudaemon.sving.core;
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -14,18 +13,35 @@ class Hint<C> {
     private final Consumer<C> action;
     private int inactivePrefixLength;
 
+    private static class Action<COMP> {
+        Class<COMP> clazz;
+        Consumer<COMP> action;
+        Action(Class<COMP> clazz_, Consumer<COMP> action_) {
+            clazz = clazz_;
+            action = action_;
+        }
+
+        boolean supports(Object component) {
+            return clazz.isInstance(component);
+        }
+    }
+
+    private static final Set<Action> SUPPORTED_ACTIONS = new LinkedHashSet<>();
+    static {
+        SUPPORTED_ACTIONS.add(new Action<>(AbstractButton.class, AbstractButton::doClick));
+        SUPPORTED_ACTIONS.add(new Action<>(JTextComponent.class, JTextComponent::requestFocusInWindow));
+    }
 
     static Optional<Hint<? extends Component>> create(Component component, String shortcut) {
         return create(component, () -> shortcut);
     }
 
+    @SuppressWarnings("unchecked")
     static Optional<Hint<? extends Component>> create(Component component, Supplier<String> shortcut) {
-        if (component instanceof AbstractButton) {
-            return Optional.of(new Hint<>((AbstractButton) component, shortcut.get(), AbstractButton::doClick));
-        } else if (component instanceof JTextComponent) {
-            return Optional.of(new Hint<>((JTextComponent) component, shortcut.get(), JTextComponent::requestFocus));
-        }
-        return Optional.empty();
+        return SUPPORTED_ACTIONS.stream()
+                .filter(a -> a.supports(component))
+                .findFirst()
+                .map(a -> new Hint<>(component, shortcut.get(), a.action));
     }
 
     private Hint(C component_, String shortcut_, Consumer<C> action_) {
