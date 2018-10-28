@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,6 +24,9 @@ import static de.eudaemon.sving.core.Matchers.anyMatch;
 import static de.eudaemon.sving.core.Matchers.hasComponentWithName;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayWithSize;
+import static org.hamcrest.Matchers.iterableWithSize;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.collection.IsIn.isIn;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -103,9 +107,27 @@ public class HinterTest {
     void usesOnlyAllowedCharacters(Hint<? extends Component> h) {
         List<Character> allowed = List.of('a', 'b', 'c');
         assertThat(
-                h.shortcut.chars().mapToObj(c -> (char) c).collect(Collectors.toList()),
+                toCharList(h),
                 everyItem(isIn(allowed))
                 );
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {5, 10, 30, 543})
+    void doesNotProduceUnnecessarilyLongShortcuts(int total) {
+        SwingHinter hinter = new SwingHinter("abc");
+        Stream<List<Character>> shortcuts =
+                hinter.findHints(containerWithButtons(total))
+                        .map(this::toCharList);
+        int maxLength = (int) Math.ceil(Math.log(total) / Math.log(3));
+        assertThat(
+                shortcuts.collect(Collectors.toList()),
+                everyItem(iterableWithSize(lessThanOrEqualTo(maxLength))
+                ));
+    }
+
+    private List<Character> toCharList(Hint<? extends Component> h) {
+        return h.shortcut.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
     }
 
     private static Stream<Hint<? extends Component>> lotsOfHints() {
