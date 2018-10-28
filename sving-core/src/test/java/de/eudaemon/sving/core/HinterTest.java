@@ -9,11 +9,14 @@ import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JCheckBoxFixture;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static de.eudaemon.sving.core.Matchers.anyMatch;
@@ -21,7 +24,10 @@ import static de.eudaemon.sving.core.Matchers.hasComponentWithName;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.hamcrest.collection.IsIn.isIn;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class HinterTest {
     private final SwingHinter hinter = new SwingHinter("abc");
@@ -86,18 +92,39 @@ public class HinterTest {
     }
 
     @Test
-    void constructsMinimalHintsFromCharacters() {
-        assertThat(
-                hinter.findHints(window.target()).map(h -> h.shortcut).collect(Collectors.toSet()),
-                hasItems("a", "b", "c", "ab")
-                );
-    }
-
-    @Test
     void reproducesResults() {
         List<Hint<? extends Component>> first = hinter.findHints(window.target()).collect(Collectors.toList());
         List<Hint<? extends Component>> second = hinter.findHints(window.target()).collect(Collectors.toList());
         assertEquals(first, second);
+    }
+
+    @ParameterizedTest
+    @MethodSource("lotsOfHints")
+    void usesOnlyAllowedCharacters(Hint<? extends Component> h) {
+        List<Character> allowed = List.of('a', 'b', 'c');
+        assertThat(
+                h.shortcut.chars().mapToObj(c -> (char) c).collect(Collectors.toList()),
+                everyItem(isIn(allowed))
+                );
+    }
+
+    private static Stream<Hint<? extends Component>> lotsOfHints() {
+        SwingHinter hinter = new SwingHinter("abc");
+        return hinter.findHints(containerWithButtons(20)).peek(System.out::println);
+    }
+
+    private static Container containerWithButtons(int n) {
+        Container container = mock(Container.class);
+        JButton[] buttons = IntStream.range(0, n).mapToObj(i -> mockButton()).toArray(JButton[]::new);
+        when(container.getComponents()).thenReturn(buttons);
+        return container;
+    }
+
+    private static JButton mockButton() {
+        JButton b = mock(JButton.class);
+        when(b.isShowing()).thenReturn(true);
+        when(b.getComponents()).thenReturn(new Component[]{});
+        return b;
     }
 
     private Hint findHint(String name) {
