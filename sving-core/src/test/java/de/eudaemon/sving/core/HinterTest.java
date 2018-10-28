@@ -7,6 +7,7 @@ import org.assertj.swing.finder.WindowFinder;
 import org.assertj.swing.fixture.DialogFixture;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JCheckBoxFixture;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -34,6 +35,11 @@ public class HinterTest {
         JFrame frame = GuiActionRunner.execute(TestWindow::new);
         window = new FrameFixture(frame);
         window.show();
+    }
+
+    @AfterAll
+    static void cleanup() {
+        window.cleanUp();
     }
 
     @Test

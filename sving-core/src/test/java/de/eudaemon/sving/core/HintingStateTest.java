@@ -14,6 +14,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.spy;
@@ -27,6 +28,8 @@ class HintingStateTest {
     @Mock JButton component;
     private Hint hintA;
     private Hint hintAB;
+    private Hint hintABC;
+    private Hint hintAC;
     private Hint hintB;
 
     @Mock Hinter<Object, Object> hinter;
@@ -39,15 +42,15 @@ class HintingStateTest {
     void setup() {
         hintA  = Hint.create(component, "a").get();
         hintAB = Hint.create(component, "ab").get();
+        hintABC = Hint.create(component, "abc").get();
+        hintAC = Hint.create(component, "ac").get();
         hintB  = Hint.create(component, "b").get();
-        List<Hint<?>> hintsA = List.of(hintA, hintAB, hintB);
-        List<Hint<?>> hintsB = List.of(Hint.create(component, "foo").get());
+        List<Hint<?>> hintsA = List.of(hintA, hintAB, hintB, hintABC, hintAC);
 
         state = new HintingState<>(hinter, null);
 
         lenient().when(hinter.findHints(any()))
-                .thenReturn(hintsA.stream())
-                .thenReturn(hintsB.stream());
+                .thenReturn(hintsA.stream());
     }
 
     @Test
@@ -57,7 +60,7 @@ class HintingStateTest {
         state.hotkeyPressed();
         verify(listener).showHints((Collection<Hint>)argThat(
                 containsInAnyOrder(
-                        hintA, hintB, hintAB
+                        hintA, hintB, hintAB, hintABC, hintAC
                 )
         ));
     }
@@ -71,6 +74,8 @@ class HintingStateTest {
         verify(listener).showHints((List<Hint>)argThat(
                 containsInAnyOrder(
                         hintWithPrefix("a"),
+                        hintWithPrefix("a"),
+                        hintWithPrefix("a"),
                         hintWithPrefix("a")
                 )));
     }
@@ -83,7 +88,7 @@ class HintingStateTest {
         state.keyPressed('a');
         state.keyPressed('b');
         verify(listener).showHints((List<Hint>)argThat(
-                contains(
+                hasItem(
                         hintWithPrefix("ab")
                 )));
     }
@@ -109,6 +114,7 @@ class HintingStateTest {
         state.hotkeyPressed();
         state.keyPressed('a');
         state.keyPressed('b');
+        state.keyPressed('c');
         verify(component).doClick();
     }
 
@@ -117,7 +123,7 @@ class HintingStateTest {
         state.addListener(listener);
         state.hotkeyPressed();
         state.keyPressed('a');
-        state.keyPressed('b');
+        state.keyPressed('c');
         verify(listener).stopShowing();
     }
 
