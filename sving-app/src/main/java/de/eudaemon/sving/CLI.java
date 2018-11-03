@@ -12,10 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.logging.*;
 
@@ -24,7 +21,7 @@ public class CLI {
 
     private static Logger rootLogger = Logger.getLogger("de.eudaemon.sving");
 
-    public static void main(String[] args_) {
+    public static void main(String... args_) {
         Queue<String> args = new LinkedList<>(Arrays.asList(args_));
         Level logLevel = Level.INFO;
         while (!args.isEmpty()) {
@@ -44,12 +41,16 @@ public class CLI {
                         System.exit(1);
                     }
                     String jarFile = args.remove();
-                    ArrayList<String> jarArguments = new ArrayList<>();
-                    while (!args.isEmpty()) {
-                        jarArguments.add(args.remove());
-                    }
-                    runJar(jarFile, jarArguments);
+                    runJar(jarFile, slurpRemaining(args));
                     break;
+                case "--main-class":
+                    if (args.isEmpty()) {
+                        System.err.println("Missing class name argument");
+                        help();
+                        System.exit(1);
+                    }
+                    String className = args.remove();
+                    runClass(className, slurpRemaining(args));
                 case "-v":
                     logLevel = Level.FINE;
                     break;
@@ -64,6 +65,14 @@ public class CLI {
         }
         setupLogging(logLevel);
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> rootLogger.log(Level.SEVERE, "Uncaught Exception", e));
+    }
+
+    private static ArrayList<String> slurpRemaining(Queue<String> args_) {
+        ArrayList<String> jarArguments = new ArrayList<>();
+        while (!args_.isEmpty()) {
+            jarArguments.add(args_.remove());
+        }
+        return jarArguments;
     }
 
     private static void setupLogging(Level logLevel) {
@@ -98,13 +107,33 @@ public class CLI {
             URLClassLoader loader = new URLClassLoader(new URL[]{ Paths.get(jarFile).toUri().toURL() }, CLI.class.getClassLoader());
             JarFile jar = new JarFile(jarFile);
             String mainClassName = jar.getManifest().getMainAttributes().getValue("Main-Class");
-            Method main = loader.loadClass(mainClassName).getMethod("main", String[].class);
-            main.invoke(null, (Object) jarArguments.toArray(new String[]{}));
-            new SvingWindowManager().install();
-        } catch (MalformedURLException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
+            runMainClassAndInstall(mainClassName, jarArguments, loader);
+        } catch (MalformedURLException | ClassNotFoundException e) {
             throw new UnanticipatedException(e);
         } catch (IOException e) {
             log.log(Level.SEVERE, "Error loading " + jarFile + ": " + e.getMessage());
+        }
+    }
+
+    private static void runClass(String className, ArrayList<String> arguments) {
+        try {
+            runMainClassAndInstall(className, arguments, CLI.class.getClassLoader());
+        } catch (ClassNotFoundException e_) {
+            log.log(Level.SEVERE, "Could not find main class: " + e_.getMessage());
+        }
+    }
+
+    private static void runMainClassAndInstall(
+            String mainClassName_,
+            Collection<String> jarArguments,
+            ClassLoader loader_
+            ) throws ClassNotFoundException {
+        try {
+            Method main = loader_.loadClass(mainClassName_).getMethod("main", String[].class);
+            main.invoke(null, (Object) jarArguments.toArray(new String[]{}));
+            new SvingWindowManager().install();
+        } catch (NoSuchMethodException | IllegalAccessException e_) {
+            e_.printStackTrace();
         } catch (InvocationTargetException e_) {
             sneakyThrow(e_.getCause()); // Fail like the invoked application would
         }

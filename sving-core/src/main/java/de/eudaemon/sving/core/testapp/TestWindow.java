@@ -9,6 +9,7 @@ public class TestWindow
     public TestWindow() {
         super("Sving test GUI");
         setLayout(new BorderLayout());
+        setName("test-app-frame");
         initComponents();
     }
 
