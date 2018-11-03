@@ -159,8 +159,10 @@ public class CLI {
         System.out.println("  sving [OPTIONS] (-d | --daemon)");
         System.out.println("      Start sving in daemon mode (attaches to any running JVMs and displays a");
         System.out.println("      tray icon for configuration)");
-        System.out.println("  sving [OPTIONS] --jar <jarFile>");
+        System.out.println("  sving [OPTIONS] --jar <jarFile> [arguments...]");
         System.out.println("      Run sving with the given executable jar");
+        System.out.println("  sving [OPTIONS] --main-class <className> [arguments...]");
+        System.out.println("      Run sving with the given main class (which must be on the classpath)");
         System.out.println();
         System.out.println(" OPTIONS");
         System.out.println(" -v  Verbose output");
