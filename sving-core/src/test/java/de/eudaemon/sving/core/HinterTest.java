@@ -78,7 +78,7 @@ public class HinterTest {
         SwingUtilities.invokeLater(() -> findHint("dialog-button").execute() );
         DialogFixture dialog = WindowFinder.findDialog(JDialog.class).withTimeout(1000).using(window.robot());
         dialog.requireVisible();
-        dialog.button(new GenericTypeMatcher<>(JButton.class) {
+        dialog.button(new GenericTypeMatcher<JButton>(JButton.class) {
             @Override
             protected boolean isMatching(JButton button) {
                 return "OK".equals(button.getText());

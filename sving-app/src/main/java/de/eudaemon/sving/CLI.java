@@ -86,7 +86,7 @@ public class CLI {
     }
 
     private static void setupLogging(Level logLevel) {
-        var handler = new ConsoleHandler(){ public void init() { setOutputStream(System.out);} };
+        SystemOutHandler handler = new SystemOutHandler();
         handler.init();
         handler.setLevel(logLevel);
         rootLogger.setLevel(logLevel);
