@@ -24,6 +24,7 @@ public class CLI {
     public static void main(String... args_) {
         Queue<String> args = new LinkedList<>(Arrays.asList(args_));
         Level logLevel = Level.INFO;
+        Runnable action = CLI::noAction;
         while (!args.isEmpty()) {
             String argument = args.remove();
             switch(argument) {
@@ -40,8 +41,9 @@ public class CLI {
                         help();
                         System.exit(1);
                     }
-                    String jarFile = args.remove();
-                    runJar(jarFile, slurpRemaining(args));
+                    final String jarFile = args.remove();
+                    final ArrayList<String> jarArguments = slurpRemaining(args);
+                    action = () -> runJar(jarFile, jarArguments);
                     break;
                 case "--main-class":
                     if (args.isEmpty()) {
@@ -50,7 +52,8 @@ public class CLI {
                         System.exit(1);
                     }
                     String className = args.remove();
-                    runClass(className, slurpRemaining(args));
+                    ArrayList<String> arguments = slurpRemaining(args);
+                    action = () -> runClass(className, arguments);
                 case "-v":
                     logLevel = Level.FINE;
                     break;
@@ -65,6 +68,13 @@ public class CLI {
         }
         setupLogging(logLevel);
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> rootLogger.log(Level.SEVERE, "Uncaught Exception", e));
+        action.run();
+    }
+
+    private static void noAction() {
+        System.err.println("No action given");
+        help();
+        System.exit(1);
     }
 
     private static ArrayList<String> slurpRemaining(Queue<String> args_) {
