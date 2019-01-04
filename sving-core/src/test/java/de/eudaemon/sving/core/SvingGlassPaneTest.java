@@ -16,6 +16,7 @@ import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.text.AttributedCharacterIterator;
 import java.text.CharacterIterator;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -31,9 +32,9 @@ class SvingGlassPaneTest {
 
     @Mock Graphics2D graphics2D;
 
-    Hint<? extends Component> hintA;
-    Hint<? extends Component> hintB;
-    Hint<? extends Component> hintC;
+    private Hint<? extends Component> hintA;
+    private Hint<? extends Component> hintB;
+    private Hint<? extends Component> hintC;
 
     @BeforeEach
     void setup() {
@@ -53,7 +54,7 @@ class SvingGlassPaneTest {
 
     @Test
     void drawsCorrectHints() {
-        pane.showHints(List.of(hintA));
+        pane.showHints(Collections.singleton(hintA));
         pane.paintComponent(graphics2D);
         verify(graphics2D).drawString(argThat(printsAs(equalTo("a"))), anyFloat(), anyFloat());
         verify(graphics2D, times(1)).drawString(any(AttributedCharacterIterator.class), anyFloat(), anyFloat());
@@ -61,10 +62,10 @@ class SvingGlassPaneTest {
 
     @Test
     void onlyDrawsCurrentHints() {
-        pane.showHints(List.of(hintA));
+        pane.showHints(Collections.singleton(hintA));
         pane.paintComponent(graphics2D);
         verify(graphics2D).drawString(argThat(printsAs(equalTo("a"))), anyFloat(), anyFloat());
-        pane.showHints((List.of(hintB)));
+        pane.showHints((Collections.singleton(hintB)));
         pane.paintComponent(graphics2D);
         verify(graphics2D).drawString(argThat(printsAs(equalTo("b"))), anyFloat(), anyFloat());
         verify(graphics2D, times(2)).drawString(any(AttributedCharacterIterator.class), anyFloat(), anyFloat());

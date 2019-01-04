@@ -19,7 +19,7 @@ class DefaultShortcutGeneratorTest {
     @ParameterizedTest
     @MethodSource("lotsOfHints")
     void usesOnlyAllowedCharacters(String h) {
-        List<Character> allowed = List.of('a', 'b', 'c');
+        List<Character> allowed = Stream.of('a', 'b', 'c').collect(Collectors.toList());
         assertThat(
                 toCharList(h),
                 everyItem(isIn(allowed))
@@ -51,7 +51,7 @@ class DefaultShortcutGeneratorTest {
         shortcuts.forEach(sc -> pairsToCheck.put(
                 sc,
                 shortcuts.stream()
-                        .dropWhile(s -> s.length() <= sc.length())
+                        .filter(s -> s.length() > sc.length())
                         .collect(Collectors.toList()))
         );
         pairsToCheck.forEach( (prefix, longer) -> assertThat(longer, not(hasItem(startsWith(prefix)))));

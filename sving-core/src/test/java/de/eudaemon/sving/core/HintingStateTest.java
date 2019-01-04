@@ -11,6 +11,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import javax.swing.*;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -26,11 +28,11 @@ import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 class HintingStateTest {
 
     @Mock JButton component;
-    private Hint hintA;
-    private Hint hintAB;
-    private Hint hintABC;
-    private Hint hintAC;
-    private Hint hintB;
+    private Hint<?> hintA;
+    private Hint<?> hintAB;
+    private Hint<?> hintABC;
+    private Hint<?> hintAC;
+    private Hint<?> hintB;
 
     @Mock Hinter<Object, Object> hinter;
 
@@ -45,7 +47,7 @@ class HintingStateTest {
         hintABC = Hint.create(component, "abc").get();
         hintAC = Hint.create(component, "ac").get();
         hintB  = Hint.create(component, "b").get();
-        List<Hint<?>> hintsA = List.of(hintA, hintAB, hintB, hintABC, hintAC);
+        List<Hint<?>> hintsA = Stream.of(hintA, hintAB, hintB, hintABC, hintAC).collect(Collectors.toList());
 
         state = new HintingState<>(hinter, null);
 
@@ -58,7 +60,7 @@ class HintingStateTest {
     void firesHintingActivatedWhenHotkeyPressedAndThereAreHints() {
         state.addListener(listener);
         state.hotkeyPressed();
-        verify(listener).showHints((Collection<Hint>)argThat(
+        verify(listener).showHints((Collection<Hint<?>>)argThat(
                 containsInAnyOrder(
                         hintA, hintB, hintAB, hintABC, hintAC
                 )
