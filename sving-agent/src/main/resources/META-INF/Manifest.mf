@@ -1,0 +1,2 @@
+Agent-Class: de.eudaemon.sving.Agent
+Permissions: all-permissions
