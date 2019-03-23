@@ -217,6 +217,8 @@ public class CLI {
         System.out.println("      Run sving with the given executable jar");
         System.out.println("  sving [OPTIONS] --main-class <className> [arguments...]");
         System.out.println("      Run sving with the given main class (which must be on the classpath)");
+        System.out.println("  sving [OPTIONS] (-a | --attach) <pid>");
+        System.out.println("      Attach the sving agent to the given JVM process");
         System.out.println();
         System.out.println(" OPTIONS");
         System.out.println(" -v  Verbose output");
