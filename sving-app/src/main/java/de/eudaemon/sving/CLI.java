@@ -1,20 +1,33 @@
 package de.eudaemon.sving;
 
+import com.sun.tools.attach.AgentInitializationException;
+import com.sun.tools.attach.AgentLoadException;
+import com.sun.tools.attach.AttachNotSupportedException;
+import com.sun.tools.attach.VirtualMachine;
 import de.eudaemon.sving.core.manager.SvingWindowManager;
 import de.eudaemon.util.UnanticipatedException;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.jar.JarFile;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class CLI {
     private static Logger log = Logger.getLogger(CLI.class.getName());
@@ -35,6 +48,16 @@ public class CLI {
                 case "--daemon":
                 case "-d":
                     throw new UnsupportedOperationException("Not implemented!");
+                case "--attach":
+                case "-a":
+                    if (args.isEmpty()) {
+                        System.err.println("Missing PID argument");
+                        help();
+                        System.exit(1);
+                    }
+                    final String pid = args.remove();
+                    action = () -> attachAgent(pid);
+                    break;
                 case "--jar":
                     if (args.isEmpty()) {
                         System.err.println("Missing jarFile argument");
@@ -130,6 +153,37 @@ public class CLI {
             runMainClassAndInstall(className, arguments, CLI.class.getClassLoader());
         } catch (ClassNotFoundException e_) {
             log.log(Level.SEVERE, "Could not find main class: " + e_.getMessage());
+        }
+    }
+
+    private static void attachAgent(String pid) {
+        try {
+            VirtualMachine vm = VirtualMachine.attach(pid);
+            vm.loadAgent(findAgentJar().getCanonicalPath(), SvingWindowManager.class.getProtectionDomain().getCodeSource().getLocation().toURI().toString());
+        } catch (AttachNotSupportedException e_) {
+            log.log(Level.SEVERE, "Can't attach: Not supported by JVM");
+        } catch (IOException e_) {
+            log.log(Level.SEVERE, e_.getMessage());
+        } catch (AgentLoadException e_) {
+            log.log(Level.SEVERE, "Can't load agent", e_);
+        } catch (AgentInitializationException e_) {
+            sneakyThrow(e_);
+        } catch (URISyntaxException e_) {
+            throw new UnanticipatedException(e_);
+        }
+    }
+
+    private static File findAgentJar() {
+        try {
+            String jarPath = System.getenv("SVING_AGENT_JAR");
+            if (jarPath != null) {
+                return new File(jarPath);
+            } else {
+                File path = new File(CLI.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParentFile();
+                return new File(path, "sving-agent.jar");
+            }
+        } catch (URISyntaxException e_) {
+            throw new UnanticipatedException(e_);
         }
     }
 
