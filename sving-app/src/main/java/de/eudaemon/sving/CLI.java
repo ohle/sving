@@ -7,6 +7,7 @@ import com.sun.tools.attach.VirtualMachine;
 import de.eudaemon.sving.core.manager.SvingWindowManager;
 import de.eudaemon.util.UnanticipatedException;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -37,7 +38,7 @@ public class CLI {
     public static void main(String... args_) {
         Queue<String> args = new LinkedList<>(Arrays.asList(args_));
         Level logLevel = Level.INFO;
-        Runnable action = CLI::noAction;
+        Runnable action = CLI::startApp;
         while (!args.isEmpty()) {
             String argument = args.remove();
             switch(argument) {
@@ -94,10 +95,12 @@ public class CLI {
         action.run();
     }
 
-    private static void noAction() {
-        System.err.println("No action given");
-        help();
-        System.exit(1);
+    private static void startApp() {
+        try {
+            App.start();
+        } catch (AWTException e_) {
+            sneakyThrow(e_);
+        }
     }
 
     private static ArrayList<String> slurpRemaining(Queue<String> args_) {
