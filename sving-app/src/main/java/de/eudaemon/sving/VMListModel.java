@@ -5,6 +5,7 @@ import com.sun.tools.attach.VirtualMachineDescriptor;
 
 import javax.swing.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -57,8 +58,11 @@ class VMListModel
         }
 
         @Override
-        public boolean equals(Object obj) {
-            return descriptor.equals(obj);
+        public boolean equals(Object o_) {
+            if (this == o_) return true;
+            if (o_ == null || getClass() != o_.getClass()) return false;
+            VM vm = (VM) o_;
+            return Objects.equals(descriptor, vm.descriptor);
         }
 
         @Override
