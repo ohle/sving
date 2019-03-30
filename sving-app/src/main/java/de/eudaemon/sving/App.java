@@ -10,11 +10,15 @@ import java.io.IOException;
 
 class App {
 
-    private final JFrame mainWindow = new MainWindow();
+    private final JFrame mainWindow;
 
-    static void start()
+    static void start(AgentManager agentManager)
             throws AWTException {
-        new App().installTrayIcon();
+        new App(agentManager).installTrayIcon();
+    }
+
+    private App(AgentManager agentManager) {
+        mainWindow = new MainWindow(agentManager);
     }
 
     private void installTrayIcon()

@@ -4,6 +4,7 @@ import com.sun.tools.attach.AgentInitializationException;
 import com.sun.tools.attach.AgentLoadException;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
+import com.sun.tools.attach.VirtualMachineDescriptor;
 import de.eudaemon.sving.core.manager.SvingWindowManager;
 import de.eudaemon.util.UnanticipatedException;
 
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -34,6 +36,8 @@ public class CLI {
     private static Logger log = Logger.getLogger(CLI.class.getName());
 
     private static Logger rootLogger = Logger.getLogger("de.eudaemon.sving");
+
+    private static final AgentManager agentManager = new AgentManager(findAgentJar());
 
     public static void main(String... args_) {
         Queue<String> args = new LinkedList<>(Arrays.asList(args_));
@@ -97,7 +101,7 @@ public class CLI {
 
     private static void startApp() {
         try {
-            App.start();
+            App.start(agentManager);
         } catch (AWTException e_) {
             sneakyThrow(e_);
         }
@@ -160,19 +164,13 @@ public class CLI {
     }
 
     private static void attachAgent(String pid) {
-        try {
-            VirtualMachine vm = VirtualMachine.attach(pid);
-            vm.loadAgent(findAgentJar().getCanonicalPath(), SvingWindowManager.class.getProtectionDomain().getCodeSource().getLocation().toURI().toString());
-        } catch (AttachNotSupportedException e_) {
-            log.log(Level.SEVERE, "Can't attach: Not supported by JVM");
-        } catch (IOException e_) {
-            log.log(Level.SEVERE, e_.getMessage());
-        } catch (AgentLoadException e_) {
-            log.log(Level.SEVERE, "Can't load agent", e_);
-        } catch (AgentInitializationException e_) {
-            sneakyThrow(e_);
-        } catch (URISyntaxException e_) {
-            throw new UnanticipatedException(e_);
+        Optional<VirtualMachineDescriptor> descriptor = VirtualMachine.list().stream()
+                .filter(d -> d.id().equals(pid))
+                .findFirst();
+        if (descriptor.isPresent()) {
+            agentManager.attachTo(descriptor.get());
+        } else {
+            log.log(Level.SEVERE, "No JVM found with PID " + pid + "!");
         }
     }
 
