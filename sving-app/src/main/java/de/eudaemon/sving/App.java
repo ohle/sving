@@ -7,6 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 class App {
 
@@ -18,6 +21,16 @@ class App {
     }
 
     private App(AgentManager agentManager) {
+        try {
+            if (System.getProperty("os.name").startsWith("Linux")) {
+                UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+            } else {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e_) {
+            Logger.getLogger(App.class.getName())
+                    .log(Level.WARNING, "Unable to set system look and feel!");
+        }
         mainWindow = new MainWindow(agentManager);
     }
 
@@ -43,7 +56,9 @@ class App {
 
     private BufferedImage loadIcon() {
         try {
-            return ImageIO.read(App.class.getClassLoader().getResourceAsStream("icon-16.png"));
+            InputStream icon = App.class.getClassLoader().getResourceAsStream("icon-16.png");
+            assert icon != null;
+            return ImageIO.read(icon);
         } catch (IOException e_) {
             throw new UnanticipatedException(e_);
         }
