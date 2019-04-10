@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class AgentManager {
+class AgentManager {
 
     private final File agentJar;
     private final URI coreJar;
@@ -25,9 +25,8 @@ public class AgentManager {
 
     private final Set<VirtualMachineDescriptor> attachedVMs = new HashSet<>();
 
-    public AgentManager(File agentJar_) {
+    AgentManager(File agentJar_) {
         agentJar = agentJar_;
-        LOG.info("Using agent jar" + agentJar_);
         try {
             coreJar = SvingWindowManager.class.getProtectionDomain().getCodeSource().getLocation().toURI();
         } catch (URISyntaxException e_) {
@@ -35,7 +34,7 @@ public class AgentManager {
         }
     }
 
-    public void attachTo(VirtualMachineDescriptor descriptor) {
+    void attachTo(VirtualMachineDescriptor descriptor) {
         if (attachedVMs.contains(descriptor)) {
             LOG.log(Level.INFO, "Already attached - skipping");
             return;
