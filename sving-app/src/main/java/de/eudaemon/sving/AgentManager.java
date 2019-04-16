@@ -54,4 +54,7 @@ class AgentManager {
         }
     }
 
+    public boolean isAttachedTo(VirtualMachineDescriptor descriptor) {
+        return attachedVMs.contains(descriptor);
+    }
 }
