@@ -38,6 +38,13 @@ class MainWindow
         table.setSelectionModel(vmSelection);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setMaximumSize(INFINITE_SIZE);
+        table.setShowGrid(false);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+        table.getTableHeader().setResizingAllowed(false);
+        table.getTableHeader().setReorderingAllowed(false);
+        table.getColumnModel().getColumn(0).setPreferredWidth(20);
+        table.getColumnModel().getColumn(0).setMaxWidth(20);
+        table.getColumnModel().getColumn(1).setMinWidth(500);
         JScrollPane scrollPane= new JScrollPane(table);
         scrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
         listPanel.add(scrollPane);
