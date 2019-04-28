@@ -34,6 +34,7 @@ class VMTableModel
 
     VMTableModel(AgentManager agentManager_) {
         agentManager = agentManager_;
+        agentManager.addListener(this::attached);
         Thread watcherThread = new Thread(this::poll, "VM Watcher");
         watcherThread.setDaemon(true);
         watcherThread.start();
@@ -55,6 +56,15 @@ class VMTableModel
             } catch (InterruptedException e_) {
                 LOG.warning("VM Polling thread interrupted!");
                 break;
+            }
+        }
+    }
+
+    private void attached(VirtualMachineDescriptor descriptor) {
+        for (int i = 0; i < vms.size(); i++) {
+            if (vms.get(i).descriptor == descriptor) {
+                fireTableCellUpdated(i, Column.ICON.ordinal());
+                return;
             }
         }
     }
@@ -115,7 +125,7 @@ class VMTableModel
         }
     }
 
-    public VM get(int index) {
+    VM get(int index) {
         return vms.get(index);
     }
 
