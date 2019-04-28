@@ -32,6 +32,8 @@ class AgentManager {
 
     private final EventListenerList listeners = new EventListenerList();
 
+    private ErrorHandler errorHandler = new NullHandler();
+
     AgentManager(File agentJar_) {
         agentJar = agentJar_;
         try {
@@ -52,13 +54,19 @@ class AgentManager {
             attachedVMs.add(descriptor);
             invokeForListeners(l -> l.attached(descriptor));
         } catch (AttachNotSupportedException e_) {
-            LOG.warning("Attach not supported by target JVM!");
+            String msg = "Attach not supported by target JVM!";
+            errorHandler.error(msg);
+            LOG.warning(msg);
         } catch (IOException e_) {
             throw new UnanticipatedException(e_);
         } catch (AgentLoadException e_) {
-            LOG.log(Level.SEVERE, "Error loading agent", e_);
+            String msg = "Error loading agent";
+            errorHandler.error(msg);
+            LOG.log(Level.SEVERE, msg, e_);
         } catch (AgentInitializationException e_) {
-            LOG.log(Level.SEVERE, "Error on agent initialization", e_);
+            String msg = "Error on agent initialization";
+            errorHandler.error(msg);
+            LOG.log(Level.SEVERE, msg, e_);
         }
     }
 
@@ -68,6 +76,10 @@ class AgentManager {
 
     void removeListener(Listener l) {
         listeners.remove(Listener.class, l);
+    }
+
+    void setErrorHandler(ErrorHandler handler) {
+        errorHandler = handler;
     }
 
     private void invokeForListeners(Consumer<Listener> callback) {
@@ -82,5 +94,17 @@ class AgentManager {
     public interface Listener
             extends EventListener {
         void attached(VirtualMachineDescriptor descriptor);
+    }
+
+    public interface ErrorHandler {
+        void error(String description);
+    }
+
+    private class NullHandler
+            implements ErrorHandler {
+
+        @Override
+        public void error(String description) {
+        }
     }
 }

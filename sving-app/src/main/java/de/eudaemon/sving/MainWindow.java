@@ -19,6 +19,7 @@ class MainWindow
 
     MainWindow(AgentManager agentManager_) {
         agentManager = agentManager_;
+        agentManager.setErrorHandler(this::showAttachError);
         setLayout(new BorderLayout());
         setMinimumSize(MINIMUM_WINDOW_SIZE);
         virtualMachines = new VMTableModel(agentManager);
@@ -58,6 +59,15 @@ class MainWindow
         attach.addActionListener(e -> agentManager.attachTo(getSelectedVM()));
         buttonPanel.add(attach);
         return buttonPanel;
+    }
+
+    private void showAttachError(String message) {
+        JOptionPane.showMessageDialog(
+                this,
+                String.format("%s\nPlease check the output or logs of the target application.", message),
+                "Couldn't attach",
+                JOptionPane.ERROR_MESSAGE
+        );
     }
 
     private VirtualMachineDescriptor getSelectedVM() {
