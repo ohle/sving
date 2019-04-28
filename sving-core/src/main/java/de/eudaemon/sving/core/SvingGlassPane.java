@@ -2,6 +2,8 @@ package de.eudaemon.sving.core;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.text.AttributedString;
@@ -11,7 +13,8 @@ import java.util.logging.Logger;
 
 public class SvingGlassPane
         extends JComponent
-        implements HintingState.Listener<Component> {
+        implements HintingState.Listener<Component>,
+        FocusListener {
 
     private final Component original;
     private Collection<Hint<? extends Component>> visibleHints = Collections.emptySet();
@@ -78,5 +81,26 @@ public class SvingGlassPane
     public void stopShowing() {
         setVisible(false);
         visibleHints = Collections.emptySet();
+    }
+
+    @Override
+    public void setVisible(boolean v) {
+        if (v) {
+            requestFocus();
+        }
+        super.setVisible(v);
+    }
+
+    @Override
+    public void focusGained(FocusEvent e) {
+        // good!
+    }
+
+    @Override
+    public void focusLost(FocusEvent e) {
+        // hold on to focus
+        if (isVisible()) {
+            requestFocus();
+        }
     }
 }
