@@ -4,6 +4,7 @@ import com.sun.tools.attach.VirtualMachineDescriptor;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.logging.Logger;
 
 class MainWindow
@@ -55,8 +56,7 @@ class MainWindow
 
     private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel();
-        JButton attach = new JButton("Attach");
-        attach.addActionListener(e -> agentManager.attachTo(getSelectedVM()));
+        JButton attach = new JButton(new AttachAction());
         buttonPanel.add(attach);
         return buttonPanel;
     }
@@ -74,4 +74,17 @@ class MainWindow
         return virtualMachines.get(vmSelection.getAnchorSelectionIndex()).descriptor;
     }
 
+    private final class AttachAction
+            extends AbstractAction {
+
+        AttachAction() {
+            putValue(NAME, "Attach");
+            putValue(SHORT_DESCRIPTION, "Attach to selected JVM");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            agentManager.attachTo(getSelectedVM());
+        }
+    }
 }
