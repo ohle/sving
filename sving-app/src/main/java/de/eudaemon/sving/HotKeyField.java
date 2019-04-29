@@ -8,14 +8,17 @@ import java.awt.event.KeyListener;
 class HotKeyField
         extends JTextField {
 
+    public static final KeyStroke DEFAULT_HOTKEY = KeyStroke.getKeyStroke(KeyEvent.VK_SEMICOLON, InputEvent.CTRL_DOWN_MASK);
+
     HotKeyField() {
-        setKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SEMICOLON, InputEvent.CTRL_DOWN_MASK));
+        setKeyStroke(DEFAULT_HOTKEY);
         addKeyListener(new HotKeyListener());
     }
 
     private KeyStroke keyStroke;
 
     void setKeyStroke(KeyStroke keyStroke_) {
+        System.out.println("HotKeyField.setKeyStroke");
         KeyStroke old = keyStroke;
         keyStroke = keyStroke_;
         setText(keyStroke.toString());

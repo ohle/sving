@@ -18,6 +18,8 @@ class MainWindow
     private final AgentManager agentManager;
     private final VMTableModel virtualMachines;
 
+    private final HotKeyField hotKeyField = new HotKeyField();
+
     MainWindow(AgentManager agentManager_) {
         agentManager = agentManager_;
         agentManager.setErrorHandler(this::showAttachError);
@@ -26,6 +28,7 @@ class MainWindow
         virtualMachines = new VMTableModel(agentManager);
         add(createListPanel(), BorderLayout.CENTER);
         add(createButtonPanel(), BorderLayout.SOUTH);
+        registerHotkeyListener();
     }
 
     private JPanel createListPanel() {
@@ -57,13 +60,16 @@ class MainWindow
     private Container createButtonPanel() {
         Container buttonPanel = new Box(BoxLayout.X_AXIS);
         JButton attach = new JButton(new AttachAction());
-        JTextField hotkey = new HotKeyField();
-        hotkey.setMinimumSize(new Dimension(50, 10));
+        hotKeyField.setMinimumSize(new Dimension(50, 10));
         buttonPanel.add(new JLabel("Hotkey:"));
-        buttonPanel.add(hotkey);
+        buttonPanel.add(hotKeyField);
         buttonPanel.add(attach);
         buttonPanel.add(Box.createHorizontalGlue());
         return buttonPanel;
+    }
+
+    private void registerHotkeyListener() {
+        vmSelection.addListSelectionListener(e -> hotKeyField.setKeyStroke(agentManager.getHotKey(getSelectedVM()).orElse(HotKeyField.DEFAULT_HOTKEY)));
     }
 
     private void showAttachError(String message) {
@@ -89,7 +95,7 @@ class MainWindow
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            agentManager.attachTo(getSelectedVM());
+            agentManager.attachTo(getSelectedVM(), hotKeyField.getKeyStroke());
         }
     }
 }

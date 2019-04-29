@@ -8,15 +8,21 @@ import com.sun.tools.attach.VirtualMachineDescriptor;
 import de.eudaemon.sving.core.manager.SvingWindowManager;
 import de.eudaemon.util.UnanticipatedException;
 
+import javax.swing.*;
 import javax.swing.event.EventListenerList;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.EventListener;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -28,7 +34,7 @@ class AgentManager {
     private final URI coreJar;
     private static final Logger LOG = Logger.getLogger(AgentManager.class.getName());
 
-    private final Set<VirtualMachineDescriptor> attachedVMs = new HashSet<>();
+    private final Map<VirtualMachineDescriptor, KeyStroke> attachedVMs = new HashMap<>();
 
     private final EventListenerList listeners = new EventListenerList();
 
@@ -44,14 +50,18 @@ class AgentManager {
     }
 
     void attachTo(VirtualMachineDescriptor descriptor) {
-        if (attachedVMs.contains(descriptor)) {
+        attachTo(descriptor, KeyStroke.getKeyStroke(KeyEvent.VK_SEMICOLON, InputEvent.CTRL_DOWN_MASK));
+    }
+
+    void attachTo(VirtualMachineDescriptor descriptor, KeyStroke hotKey) {
+        if (attachedVMs.containsKey(descriptor)) {
             LOG.log(Level.INFO, "Already attached - skipping");
             return;
         }
         try {
             VirtualMachine vm = VirtualMachine.attach(descriptor.id());
             vm.loadAgent(agentJar.getCanonicalPath(), coreJar.toString());
-            attachedVMs.add(descriptor);
+            attachedVMs.put(descriptor, hotKey);
             invokeForListeners(l -> l.attached(descriptor));
         } catch (AttachNotSupportedException e_) {
             String msg = "Attach not supported by target JVM!";
@@ -88,7 +98,11 @@ class AgentManager {
     }
 
     boolean isAttachedTo(VirtualMachineDescriptor descriptor) {
-        return attachedVMs.contains(descriptor);
+        return attachedVMs.containsKey(descriptor);
+    }
+
+    Optional<KeyStroke> getHotKey(VirtualMachineDescriptor descriptor) {
+        return Optional.ofNullable(attachedVMs.get(descriptor));
     }
 
     public interface Listener
