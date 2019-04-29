@@ -54,10 +54,15 @@ class MainWindow
         return listPanel;
     }
 
-    private JPanel createButtonPanel() {
-        JPanel buttonPanel = new JPanel();
+    private Container createButtonPanel() {
+        Container buttonPanel = new Box(BoxLayout.X_AXIS);
         JButton attach = new JButton(new AttachAction());
+        JTextField hotkey = new HotKeyField();
+        hotkey.setMinimumSize(new Dimension(50, 10));
+        buttonPanel.add(new JLabel("Hotkey:"));
+        buttonPanel.add(hotkey);
         buttonPanel.add(attach);
+        buttonPanel.add(Box.createHorizontalGlue());
         return buttonPanel;
     }
 
