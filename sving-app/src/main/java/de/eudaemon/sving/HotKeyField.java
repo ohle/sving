@@ -18,7 +18,6 @@ class HotKeyField
     private KeyStroke keyStroke;
 
     void setKeyStroke(KeyStroke keyStroke_) {
-        System.out.println("HotKeyField.setKeyStroke");
         KeyStroke old = keyStroke;
         keyStroke = keyStroke_;
         setText(keyStroke.toString());
