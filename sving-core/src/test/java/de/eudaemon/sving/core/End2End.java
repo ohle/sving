@@ -2,8 +2,6 @@ package de.eudaemon.sving.core;
 
 import de.eudaemon.sving.core.manager.SvingWindowManager;
 import de.eudaemon.sving.core.testapp.TestWindow;
-import org.assertj.swing.core.BasicRobot;
-import org.assertj.swing.core.Robot;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.finder.JOptionPaneFinder;
 import org.assertj.swing.fixture.FrameFixture;
@@ -26,7 +24,7 @@ public class End2End {
         JFrame frame = GuiActionRunner.execute(TestWindow::new);
         window = new FrameFixture(frame);
         window.show();
-        new SvingWindowManager().install();
+        new SvingWindowManager().install("ctrl SEMICOLON");
     }
 
     @AfterAll

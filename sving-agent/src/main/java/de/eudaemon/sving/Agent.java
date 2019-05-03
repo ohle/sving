@@ -11,12 +11,15 @@ import java.net.URISyntaxException;
 import java.util.jar.JarFile;
 
 public class Agent {
-    public static void agentmain(String jarUri, Instrumentation inst) {
+    public static void agentmain(String options, Instrumentation inst) {
+        String[] option = options.split("\\|");
+        String jarUri = option[0];
+        String hotKey = option.length > 1 ? option[1] : "ctrl SEMICOLON";
         try {
             inst.appendToSystemClassLoaderSearch(new JarFile(new File(new URI(jarUri))));
         } catch (IOException | URISyntaxException e_) {
             throw new RuntimeException(e_);
         }
-        new SvingWindowManager().install();
+        new SvingWindowManager().install(hotKey);
     }
 }

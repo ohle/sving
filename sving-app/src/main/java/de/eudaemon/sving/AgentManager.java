@@ -60,7 +60,7 @@ class AgentManager {
         }
         try {
             VirtualMachine vm = VirtualMachine.attach(descriptor.id());
-            vm.loadAgent(agentJar.getCanonicalPath(), coreJar.toString());
+            vm.loadAgent(agentJar.getCanonicalPath(), coreJar.toString() + "|" + hotKey.toString());
             attachedVMs.put(descriptor, hotKey);
             invokeForListeners(l -> l.attached(descriptor));
         } catch (AttachNotSupportedException e_) {

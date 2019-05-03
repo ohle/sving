@@ -19,13 +19,16 @@ public class SvingWindowManager {
     private SvingGlassPane installedGlassPane = null;
     private final Hinter<Container, Component> hinter = new SwingHinter(new DefaultShortcutGenerator("abc"));
     private HintingState<Container, Component> hintingState = null;
+    private KeyStroke hotKey;
 
     private static final Logger LOG = Logger.getLogger(SvingWindowManager.class.getName());
 
     /**
      * Installs the WindowManager in the current VM
+     * @param hotKey_
      */
-    public void install() {
+    public void install(String hotKey_) {
+        hotKey = KeyStroke.getKeyStroke(hotKey_);
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener(
                 "focusedWindow",
                 e -> updateWindow()
@@ -37,9 +40,6 @@ public class SvingWindowManager {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
-                if (e.getID() != KeyEvent.KEY_RELEASED) {
-                    return false;
-                }
                 if (hintingState == null) {
                     return false;
                 }
@@ -47,7 +47,11 @@ public class SvingWindowManager {
                     LOG.fine("Hotkey received");
                     hintingState.hotkeyPressed();
                     return true;
-                } else if (hinter.isAllowedHintChar(e.getKeyChar())) {
+                }
+                if (e.getID() != KeyEvent.KEY_RELEASED) {
+                    return false;
+                }
+                if (hinter.isAllowedHintChar(e.getKeyChar())) {
                     LOG.finer("Hint refinement: " + e.getKeyChar());
                     hintingState.keyPressed(e.getKeyChar());
                     return true;
@@ -60,7 +64,7 @@ public class SvingWindowManager {
             }
 
             private boolean isHotkey(KeyEvent e) {
-                return ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) && e.getKeyChar() == ';';
+                return KeyStroke.getKeyStrokeForEvent(e).equals(hotKey);
             }
         });
         updateWindow();
