@@ -1,6 +1,5 @@
 package de.eudaemon.sving;
 
-import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 
 import javax.imageio.ImageIO;
@@ -13,21 +12,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class VMTableModel
         extends AbstractTableModel {
 
-    private static final int DELAY = 2000; // poll every 2 seconds
     private static final Logger LOG = Logger.getLogger(VMTableModel.class.getName());
 
-    private Set<VM> descriptors = new HashSet<>();
     private List<VM> vms = new ArrayList<>();
 
     private final AgentManager agentManager;
@@ -35,29 +30,9 @@ class VMTableModel
     VMTableModel(AgentManager agentManager_) {
         agentManager = agentManager_;
         agentManager.addListener(this::attached);
-        Thread watcherThread = new Thread(this::poll, "VM Watcher");
-        watcherThread.setDaemon(true);
-        watcherThread.start();
-    }
-
-    private void poll() {
-        while (true) {
-            Set<VM> currentDescriptors = VirtualMachine.list().stream().map(VM::new).collect(Collectors.toSet());
-            Set<VM> toRemove = new HashSet<>(descriptors);
-            toRemove.removeAll(currentDescriptors);
-            toRemove.forEach(this::removeElement);
-            currentDescriptors.removeAll(descriptors);
-            currentDescriptors.forEach(d -> {
-                descriptors.add(d);
-                addElement(d);
-            });
-            try {
-                Thread.sleep(DELAY);
-            } catch (InterruptedException e_) {
-                LOG.warning("VM Polling thread interrupted!");
-                break;
-            }
-        }
+        VMWatcher watcher = new VMWatcher();
+        watcher.registerAddListener(this::addElement);
+        watcher.registerRemoveListener(this::removeElement);
     }
 
     private void attached(VirtualMachineDescriptor descriptor) {
@@ -127,32 +102,6 @@ class VMTableModel
 
     VM get(int index) {
         return vms.get(index);
-    }
-
-    public static class VM {
-        final VirtualMachineDescriptor descriptor;
-
-        VM(VirtualMachineDescriptor descriptor_) {
-            descriptor = descriptor_;
-        }
-
-        @Override
-        public int hashCode() {
-            return descriptor.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object o_) {
-            if (this == o_) return true;
-            if (o_ == null || getClass() != o_.getClass()) return false;
-            VM vm = (VM) o_;
-            return Objects.equals(descriptor, vm.descriptor);
-        }
-
-        @Override
-        public String toString() {
-            return descriptor.displayName();
-        }
     }
 
     private enum Column {
