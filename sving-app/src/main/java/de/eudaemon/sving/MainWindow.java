@@ -5,6 +5,7 @@ import com.sun.tools.attach.VirtualMachineDescriptor;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 class MainWindow
@@ -69,7 +70,10 @@ class MainWindow
     }
 
     private void registerHotkeyListener() {
-        vmSelection.addListSelectionListener(e -> hotKeyField.setKeyStroke(agentManager.getHotKey(getSelectedVM()).orElse(HotKeyField.DEFAULT_HOTKEY)));
+        vmSelection.addListSelectionListener(e ->
+                getSelectedVM().ifPresent(vm ->
+                        hotKeyField.setKeyStroke(agentManager.getHotKey(vm).orElse(HotKeyField.DEFAULT_HOTKEY))
+                ));
     }
 
     private void showAttachError(String message) {
@@ -81,8 +85,13 @@ class MainWindow
         );
     }
 
-    private VirtualMachineDescriptor getSelectedVM() {
-        return virtualMachines.get(vmSelection.getAnchorSelectionIndex()).descriptor;
+    private Optional<VirtualMachineDescriptor> getSelectedVM() {
+        int selectionIndex = vmSelection.getAnchorSelectionIndex();
+        if (selectionIndex > 0) {
+            return Optional.ofNullable(virtualMachines.get(selectionIndex)).map(vm -> vm.descriptor);
+        } else {
+            return Optional.empty();
+        }
     }
 
     private final class AttachAction
@@ -95,7 +104,7 @@ class MainWindow
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            agentManager.attachTo(getSelectedVM(), hotKeyField.getKeyStroke());
+            getSelectedVM().ifPresent(vm -> agentManager.attachTo(vm, hotKeyField.getKeyStroke()));
         }
     }
 }
