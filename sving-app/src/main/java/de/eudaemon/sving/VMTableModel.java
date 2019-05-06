@@ -89,7 +89,7 @@ class VMTableModel
         switch (Column.forIndex(columnIndex).orElseThrow(IllegalArgumentException::new)) {
             case ICON:
                 if (agentManager.isAttachedTo(vm.descriptor)) {
-                    return getIcon("attached");
+                    return Icon.ATTACHED.get(16);
                 } else {
                     return new ImageIcon();
                 }
@@ -109,23 +109,6 @@ class VMTableModel
 
         public static Optional<Column> forIndex(int idx) {
             return Stream.of(values()).filter(c -> c.ordinal() == idx).findFirst();
-        }
-    }
-
-    private Map<String, Icon> icons = new HashMap<>();
-
-    private Icon getIcon(String name) {
-        return icons.computeIfAbsent(name, this::loadIcon);
-    }
-
-    private Icon loadIcon(String name) {
-        InputStream image = MainWindow.class.getClassLoader().getResourceAsStream(name + ".png");
-        assert image != null;
-        try {
-            return new ImageIcon(ImageIO.read(image));
-        } catch (IOException e_) {
-            LOG.log(Level.WARNING, "Couldn't load icon '" + name + "'");
-            return new ImageIcon();
         }
     }
 }
