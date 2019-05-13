@@ -3,14 +3,16 @@ package de.eudaemon.sving;
 import com.sun.tools.attach.VirtualMachine;
 import de.eudaemon.sving.util.ListenerRegistry;
 
+import java.util.Collection;
 import java.util.EventListener;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
-public class VMWatcher {
+class VMWatcher {
 
     private static final int DELAY = 2000; // poll every 2 seconds
 
@@ -27,12 +29,16 @@ public class VMWatcher {
         watcherThread.start();
     }
 
-    public void registerAddListener(AddListener listener) {
+    void registerAddListener(AddListener listener) {
         addListeners.add(listener);
     }
 
-    public void registerRemoveListener(RemoveListener listener) {
+    void registerRemoveListener(RemoveListener listener) {
         removeListeners.add(listener);
+    }
+
+    Stream<VM> getVMs() {
+        return descriptors.stream();
     }
 
     private void poll() {

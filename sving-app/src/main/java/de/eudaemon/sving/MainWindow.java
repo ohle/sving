@@ -20,15 +20,21 @@ class MainWindow
     private final VMTableModel virtualMachines;
 
     private final HotKeyField hotKeyField = new HotKeyField();
+    private JButton attachButton;
 
-    MainWindow(AgentManager agentManager_) {
+    private final Action attach = new AttachAction();
+    private final Action star = new StarAction();
+    private final Action unstar = new UnStarAction();
+
+    MainWindow(AgentManager agentManager_, VMWatcher vmWatcher) {
         agentManager = agentManager_;
         agentManager.setErrorHandler(this::showAttachError);
         setLayout(new BorderLayout());
         setMinimumSize(MINIMUM_WINDOW_SIZE);
-        virtualMachines = new VMTableModel(agentManager);
+        virtualMachines = new VMTableModel(agentManager, vmWatcher);
         add(createListPanel(), BorderLayout.CENTER);
         add(createButtonPanel(), BorderLayout.SOUTH);
+        vmSelection.addListSelectionListener(e -> updateButtonAction());
         registerHotkeyListener();
     }
 
@@ -60,13 +66,25 @@ class MainWindow
 
     private Container createButtonPanel() {
         Container buttonPanel = new Box(BoxLayout.X_AXIS);
-        JButton attach = new JButton(new AttachAction());
+        attachButton = new JButton(attach);
         hotKeyField.setMinimumSize(new Dimension(50, 10));
         buttonPanel.add(new JLabel("Hotkey:"));
         buttonPanel.add(hotKeyField);
-        buttonPanel.add(attach);
+        buttonPanel.add(attachButton);
         buttonPanel.add(Box.createHorizontalGlue());
         return buttonPanel;
+    }
+
+    private void updateButtonAction() {
+        getSelectedVM().ifPresent(vm -> {
+            if (agentManager.isAutoAttach(vm)) {
+                attachButton.setAction(unstar);
+            } else if (agentManager.isAttachedTo(vm)) {
+                attachButton.setAction(star);
+            } else {
+                attachButton.setAction(attach);
+            }
+        });
     }
 
     private void registerHotkeyListener() {
@@ -105,6 +123,44 @@ class MainWindow
         @Override
         public void actionPerformed(ActionEvent e) {
             getSelectedVM().ifPresent(vm -> agentManager.attachTo(vm, hotKeyField.getKeyStroke()));
+        }
+    }
+
+    private class StarAction
+            extends AbstractAction {
+
+        StarAction() {
+            putValue(LARGE_ICON_KEY, Icon.NO_STAR.get(24));
+            putValue(NAME, "Star");
+            putValue(SHORT_DESCRIPTION, "Always attach to this application");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            getSelectedVM().ifPresent(agentManager::addAutoAttachTarget);
+            virtualMachines.fireTableRowsUpdated(
+                    vmSelection.getAnchorSelectionIndex(),
+                    vmSelection.getAnchorSelectionIndex()
+            );
+        }
+    }
+
+    private final class UnStarAction
+            extends AbstractAction {
+
+        UnStarAction() {
+            putValue(LARGE_ICON_KEY, Icon.STAR.get(24));
+            putValue(NAME, "Unstar");
+            putValue(SHORT_DESCRIPTION, "Stop automatically attaching to this application");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            getSelectedVM().ifPresent(agentManager::removeAutoAttachTarget);
+            virtualMachines.fireTableRowsUpdated(
+                    vmSelection.getAnchorSelectionIndex(),
+                    vmSelection.getAnchorSelectionIndex()
+            );
         }
     }
 }

@@ -3,4 +3,5 @@ module sving.app {
     requires java.logging;
     requires jdk.attach;
     requires java.desktop;
+    requires java.prefs;
 }

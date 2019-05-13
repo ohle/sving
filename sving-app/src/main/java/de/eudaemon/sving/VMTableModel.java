@@ -2,35 +2,24 @@ package de.eudaemon.sving;
 
 import com.sun.tools.attach.VirtualMachineDescriptor;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 class VMTableModel
         extends AbstractTableModel {
 
-    private static final Logger LOG = Logger.getLogger(VMTableModel.class.getName());
-
     private List<VM> vms = new ArrayList<>();
 
     private final AgentManager agentManager;
 
-    VMTableModel(AgentManager agentManager_) {
+    VMTableModel(AgentManager agentManager_, VMWatcher watcher) {
         agentManager = agentManager_;
         agentManager.addListener(this::attached);
-        VMWatcher watcher = new VMWatcher();
+        watcher.getVMs().forEach(this::addElement);
         watcher.registerAddListener(this::addElement);
         watcher.registerRemoveListener(this::removeElement);
     }
@@ -77,7 +66,8 @@ class VMTableModel
     @Override
     public Class<?> getColumnClass(int columnIndex) {
         switch (Column.forIndex(columnIndex).orElseThrow(IllegalArgumentException::new)) {
-            case ICON: return Icon.class;
+            case ICON:
+                return ImageIcon.class;
             case NAME: return String.class;
             default: throw new IllegalStateException();
         }
@@ -88,10 +78,15 @@ class VMTableModel
         VM vm = vms.get(rowIndex);
         switch (Column.forIndex(columnIndex).orElseThrow(IllegalArgumentException::new)) {
             case ICON:
+                if (agentManager.isAutoAttach(vm.descriptor)) {
+                    System.out.println("STAR");
+                    return Icon.STAR.get(16);
+                }
                 if (agentManager.isAttachedTo(vm.descriptor)) {
+                    System.out.println("ATTACHED");
                     return Icon.ATTACHED.get(16);
                 } else {
-                    return new ImageIcon();
+                    return null;
                 }
             case NAME:
                 return vm.toString();

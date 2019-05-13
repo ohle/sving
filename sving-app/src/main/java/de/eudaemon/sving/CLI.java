@@ -34,7 +34,7 @@ public class CLI {
 
     private static Logger rootLogger = Logger.getLogger("de.eudaemon.sving");
 
-    private static final AgentManager agentManager = new AgentManager(findAgentJar());
+    private static final AgentManager agentManager = new AgentManager(findAgentJar(), new VMWatcher());
 
     public static void main(String... args_) {
         Queue<String> args = new LinkedList<>(Arrays.asList(args_));
@@ -98,7 +98,7 @@ public class CLI {
 
     private static void startApp() {
         try {
-            App.start(agentManager);
+            App.start(agentManager, new VMWatcher());
         } catch (AWTException e_) {
             sneakyThrow(e_);
         }

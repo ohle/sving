@@ -15,12 +15,12 @@ class App {
 
     private final JFrame mainWindow;
 
-    static void start(AgentManager agentManager)
+    static void start(AgentManager agentManager, VMWatcher vmWatcher)
             throws AWTException {
-        new App(agentManager).installTrayIcon();
+        new App(agentManager, vmWatcher).installTrayIcon();
     }
 
-    private App(AgentManager agentManager) {
+    private App(AgentManager agentManager, VMWatcher vmWatcher) {
         try {
             if (System.getProperty("os.name").startsWith("Linux")) {
                 UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
@@ -31,7 +31,7 @@ class App {
             Logger.getLogger(App.class.getName())
                     .log(Level.WARNING, "Unable to set system look and feel!");
         }
-        mainWindow = new MainWindow(agentManager);
+        mainWindow = new MainWindow(agentManager, vmWatcher);
     }
 
     private void installTrayIcon()

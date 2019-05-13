@@ -10,12 +10,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 enum Icon {
-    ATTACHED("attached"), STAR("star");
+    ATTACHED("attached"), STAR("star"), NO_STAR("non-starred");
 
     private final String name;
     private Map<Integer, ImageIcon> bySize = new HashMap<>();
 
-    private Icon(String name_) {
+    Icon(String name_) {
         name = name_;
     }
     private static final Logger LOG = Logger.getLogger(Icon.class.getName());

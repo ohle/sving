@@ -16,17 +16,20 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
 class AgentManager {
 
@@ -38,14 +41,29 @@ class AgentManager {
 
     private final EventListenerList listeners = new EventListenerList();
 
+    private final Preferences preferences;
+    private final Set<String> autoAttachIds = new HashSet<>();
+    private static final String AUTOLOAD_COUNT = "auto-load-ids";
+    private static final String AUTOLOAD_PREFIX = "auto-load-id-";
+
     private ErrorHandler errorHandler = new NullHandler();
 
-    AgentManager(File agentJar_) {
+    AgentManager(File agentJar_, VMWatcher watcher) {
         agentJar = agentJar_;
+        preferences = Preferences.userRoot().node(getClass().getName());
         try {
             coreJar = SvingWindowManager.class.getProtectionDomain().getCodeSource().getLocation().toURI();
         } catch (URISyntaxException e_) {
             throw new UnanticipatedException(e_);
+        }
+        loadAutoAttachIdsFromPreferences();
+        watcher.registerAddListener(this::attachIfAuto);
+    }
+
+    private void loadAutoAttachIdsFromPreferences() {
+        int count = preferences.getInt(AUTOLOAD_COUNT, 0);
+        for (int i = 0; i < count; i++) {
+            autoAttachIds.add(preferences.get(AUTOLOAD_PREFIX + i, null));
         }
     }
 
@@ -78,6 +96,43 @@ class AgentManager {
             errorHandler.error(msg);
             LOG.log(Level.SEVERE, msg, e_);
         }
+    }
+
+    void addAutoAttachTarget(VirtualMachineDescriptor vm) {
+        if (autoAttachIds.contains(vm.id())) {
+            return;
+        }
+        if (!isAttachedTo(vm)) {
+            attachTo(vm);
+        }
+        autoAttachIds.add(vm.id());
+        preferences.putInt(AUTOLOAD_COUNT, autoAttachIds.size());
+        preferences.put(AUTOLOAD_PREFIX + (autoAttachIds.size() - 1), vm.id());
+    }
+
+    public void removeAutoAttachTarget(VirtualMachineDescriptor vm) {
+        if (!autoAttachIds.contains(vm.id())) {
+            return;
+        }
+        for (int i = 0; i < autoAttachIds.size(); i++) {
+            preferences.remove(AUTOLOAD_PREFIX + i);
+        }
+        autoAttachIds.remove(vm.id());
+        int i = 0;
+        for (String autoAttachId : autoAttachIds) {
+            preferences.put(AUTOLOAD_PREFIX + i, autoAttachId);
+            i++;
+        }
+    }
+
+    private void attachIfAuto(VM vm) {
+        if (autoAttachIds.contains(vm.descriptor.id()) && !isAttachedTo(vm.descriptor)) {
+            attachTo(vm.descriptor);
+        }
+    }
+
+    boolean isAutoAttach(VirtualMachineDescriptor vm) {
+        return autoAttachIds.contains(vm.id());
     }
 
     void addListener(Listener l) {
