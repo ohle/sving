@@ -116,6 +116,7 @@ class MainWindow
             extends AbstractAction {
 
         AttachAction() {
+            putValue(LARGE_ICON_KEY, Icon.ATTACHED.get(24));
             putValue(NAME, "Attach");
             putValue(SHORT_DESCRIPTION, "Attach to selected JVM");
         }
