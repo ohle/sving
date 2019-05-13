@@ -79,11 +79,9 @@ class VMTableModel
         switch (Column.forIndex(columnIndex).orElseThrow(IllegalArgumentException::new)) {
             case ICON:
                 if (agentManager.isAutoAttach(vm.descriptor)) {
-                    System.out.println("STAR");
                     return Icon.STAR.get(16);
                 }
                 if (agentManager.isAttachedTo(vm.descriptor)) {
-                    System.out.println("ATTACHED");
                     return Icon.ATTACHED.get(16);
                 } else {
                     return null;
