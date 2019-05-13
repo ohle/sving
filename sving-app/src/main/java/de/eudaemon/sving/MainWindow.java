@@ -123,6 +123,7 @@ class MainWindow
         @Override
         public void actionPerformed(ActionEvent e) {
             getSelectedVM().ifPresent(vm -> agentManager.attachTo(vm, hotKeyField.getKeyStroke()));
+            updateButtonAction();
         }
     }
 
@@ -142,6 +143,7 @@ class MainWindow
                     vmSelection.getAnchorSelectionIndex(),
                     vmSelection.getAnchorSelectionIndex()
             );
+            updateButtonAction();
         }
     }
 
@@ -161,6 +163,7 @@ class MainWindow
                     vmSelection.getAnchorSelectionIndex(),
                     vmSelection.getAnchorSelectionIndex()
             );
+            updateButtonAction();
         }
     }
 }
