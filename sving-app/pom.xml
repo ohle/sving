@@ -71,11 +71,33 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
-                <configuration>
-                    <skip>false</skip>
-                    <executable>java</executable>
-                    <mainClass>de.eudaemon.sving.CLI</mainClass>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>run</id>
+                        <configuration>
+                            <skip>false</skip>
+                            <executable>java</executable>
+                            <mainClass>de.eudaemon.sving.CLI</mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>manual</id>
+                        <phase>pre-site</phase>
+                        <configuration>
+                            <skip>false</skip>
+                            <workingDirectory>doc</workingDirectory>
+                            <executable>pandoc</executable>
+                            <arguments>
+                                <argument>manual.md</argument>
+                                <argument>-o</argument>
+                                <argument>${project.reporting.outputDirectory}/sving.1</argument>
+                            </arguments>
+                        </configuration>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
