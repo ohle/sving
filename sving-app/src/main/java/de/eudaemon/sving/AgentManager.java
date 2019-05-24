@@ -16,16 +16,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,12 +34,12 @@ class AgentManager {
     private final URI coreJar;
     private static final Logger LOG = Logger.getLogger(AgentManager.class.getName());
 
-    private final Map<VirtualMachineDescriptor, KeyStroke> attachedVMs = new HashMap<>();
+    private final Map<VirtualMachineDescriptor, AttachedVM> attachedVMs = new HashMap<>();
 
     private final EventListenerList listeners = new EventListenerList();
 
     private final Preferences preferences;
-    private final Set<String> autoAttachIds = new HashSet<>();
+    private final Set<String> autoAttachCommands = new HashSet<>();
     private static final String AUTOLOAD_COUNT = "auto-load-ids";
     private static final String AUTOLOAD_PREFIX = "auto-load-id-";
 
@@ -63,7 +60,7 @@ class AgentManager {
     private void loadAutoAttachIdsFromPreferences() {
         int count = preferences.getInt(AUTOLOAD_COUNT, 0);
         for (int i = 0; i < count; i++) {
-            autoAttachIds.add(preferences.get(AUTOLOAD_PREFIX + i, null));
+            autoAttachCommands.add(preferences.get(AUTOLOAD_PREFIX + i, null));
         }
     }
 
@@ -79,7 +76,7 @@ class AgentManager {
         try {
             VirtualMachine vm = VirtualMachine.attach(descriptor.id());
             vm.loadAgent(agentJar.getCanonicalPath(), coreJar.toString() + "|" + hotKey.toString());
-            attachedVMs.put(descriptor, hotKey);
+            attachedVMs.put(descriptor, new AttachedVM(getCommandName(vm), hotKey));
             invokeForListeners(l -> l.attached(descriptor));
         } catch (AttachNotSupportedException e_) {
             String msg = "Attach not supported by target JVM!";
@@ -98,41 +95,64 @@ class AgentManager {
         }
     }
 
+    private String getCommandName(VirtualMachine vm) {
+        try {
+            return vm.getSystemProperties().getProperty("sun.java.command");
+        } catch (IOException e_) {
+            throw new UnanticipatedException(e_);
+        }
+    }
+
+    private Optional<String> getCommandName(VirtualMachineDescriptor descriptor) {
+        try {
+            VirtualMachine vm = VirtualMachine.attach(descriptor.id());
+            return Optional.ofNullable(getCommandName(vm));
+        } catch (AttachNotSupportedException | IOException e_) {
+            return Optional.empty();
+        }
+    }
+
     void addAutoAttachTarget(VirtualMachineDescriptor vm) {
-        if (autoAttachIds.contains(vm.id())) {
+        Optional<String> cmd = getCommandName(vm);
+        if (!cmd.isPresent()) {
+            return;
+        }
+        if (autoAttachCommands.contains(cmd.get())) {
             return;
         }
         if (!isAttachedTo(vm)) {
             attachTo(vm);
         }
-        autoAttachIds.add(vm.id());
-        preferences.putInt(AUTOLOAD_COUNT, autoAttachIds.size());
-        preferences.put(AUTOLOAD_PREFIX + (autoAttachIds.size() - 1), vm.id());
+        autoAttachCommands.add(cmd.get());
+        preferences.putInt(AUTOLOAD_COUNT, autoAttachCommands.size());
+        preferences.put(AUTOLOAD_PREFIX + (autoAttachCommands.size() - 1), attachedVMs.get(vm).command);
     }
 
     public void removeAutoAttachTarget(VirtualMachineDescriptor vm) {
-        if (!autoAttachIds.contains(vm.id())) {
+        if (!autoAttachCommands.contains(vm.id())) {
             return;
         }
-        for (int i = 0; i < autoAttachIds.size(); i++) {
+        for (int i = 0; i < autoAttachCommands.size(); i++) {
             preferences.remove(AUTOLOAD_PREFIX + i);
         }
-        autoAttachIds.remove(vm.id());
+        autoAttachCommands.remove(vm.id());
         int i = 0;
-        for (String autoAttachId : autoAttachIds) {
+        for (String autoAttachId : autoAttachCommands) {
             preferences.put(AUTOLOAD_PREFIX + i, autoAttachId);
             i++;
         }
     }
 
     private void attachIfAuto(VM vm) {
-        if (autoAttachIds.contains(vm.descriptor.id()) && !isAttachedTo(vm.descriptor)) {
-            attachTo(vm.descriptor);
-        }
+        getCommandName(vm.descriptor).map(autoAttachCommands::contains).ifPresent(p -> {
+            if (!isAttachedTo(vm.descriptor)) {
+                attachTo(vm.descriptor);
+            }
+        });
     }
 
     boolean isAutoAttach(VirtualMachineDescriptor vm) {
-        return autoAttachIds.contains(vm.id());
+        return autoAttachCommands.contains(vm.id());
     }
 
     void addListener(Listener l) {
@@ -157,7 +177,7 @@ class AgentManager {
     }
 
     Optional<KeyStroke> getHotKey(VirtualMachineDescriptor descriptor) {
-        return Optional.ofNullable(attachedVMs.get(descriptor));
+        return Optional.ofNullable(attachedVMs.get(descriptor).hotkey);
     }
 
     public interface Listener
@@ -174,6 +194,16 @@ class AgentManager {
 
         @Override
         public void error(String description) {
+        }
+    }
+
+    private static final class AttachedVM {
+        final String command;
+        final KeyStroke hotkey;
+
+        private AttachedVM(String command_, KeyStroke hotkey_) {
+            command = command_;
+            hotkey = hotkey_;
         }
     }
 }
