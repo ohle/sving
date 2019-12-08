@@ -130,18 +130,20 @@ class AgentManager {
     }
 
     public void removeAutoAttachTarget(VirtualMachineDescriptor vm) {
-        if (!autoAttachCommands.contains(vm.id())) {
-            return;
-        }
-        for (int i = 0; i < autoAttachCommands.size(); i++) {
-            preferences.remove(AUTOLOAD_PREFIX + i);
-        }
-        autoAttachCommands.remove(vm.id());
-        int i = 0;
-        for (String autoAttachId : autoAttachCommands) {
-            preferences.put(AUTOLOAD_PREFIX + i, autoAttachId);
-            i++;
-        }
+        getCommandName(vm).ifPresent(cmd -> {
+            if (!autoAttachCommands.contains(cmd)) {
+                return;
+            }
+            for (int i = 0; i < autoAttachCommands.size(); i++) {
+                preferences.remove(AUTOLOAD_PREFIX + i);
+            }
+            autoAttachCommands.remove(cmd);
+            int i = 0;
+            for (String autoAttachId : autoAttachCommands) {
+                preferences.put(AUTOLOAD_PREFIX + i, autoAttachId);
+                i++;
+            }
+        });
     }
 
     private void attachIfAuto(VM vm) {
