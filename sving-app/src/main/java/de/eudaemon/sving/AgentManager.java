@@ -145,15 +145,13 @@ class AgentManager {
     }
 
     private void attachIfAuto(VM vm) {
-        getCommandName(vm.descriptor).map(autoAttachCommands::contains).ifPresent(p -> {
-            if (!isAttachedTo(vm.descriptor)) {
-                attachTo(vm.descriptor);
-            }
-        });
+        if (isAutoAttach(vm.descriptor) && !isAttachedTo(vm.descriptor)) {
+            attachTo(vm.descriptor);
+        }
     }
 
     boolean isAutoAttach(VirtualMachineDescriptor vm) {
-        return autoAttachCommands.contains(vm.id());
+        return getCommandName(vm).map(autoAttachCommands::contains).orElse(false);
     }
 
     void addListener(Listener l) {
