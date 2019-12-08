@@ -74,6 +74,7 @@ class AgentManager {
             return;
         }
         try {
+            LOG.info("Attaching to " + descriptor);
             VirtualMachine vm = VirtualMachine.attach(descriptor.id());
             vm.loadAgent(agentJar.getCanonicalPath(), coreJar.toString() + "|" + hotKey.toString());
             attachedVMs.put(descriptor, new AttachedVM(getCommandName(vm), hotKey));
