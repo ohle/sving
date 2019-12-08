@@ -29,13 +29,17 @@ class MainWindow
     MainWindow(AgentManager agentManager_, VMWatcher vmWatcher) {
         agentManager = agentManager_;
         agentManager.setErrorHandler(this::showAttachError);
+        virtualMachines = new VMTableModel(agentManager, vmWatcher);
+        vmSelection.addListSelectionListener(e -> updateButtonAction());
+        initGUI();
+        registerHotkeyListener();
+    }
+
+    private void initGUI() {
         setLayout(new BorderLayout());
         setMinimumSize(MINIMUM_WINDOW_SIZE);
-        virtualMachines = new VMTableModel(agentManager, vmWatcher);
         add(createListPanel(), BorderLayout.CENTER);
         add(createButtonPanel(), BorderLayout.SOUTH);
-        vmSelection.addListSelectionListener(e -> updateButtonAction());
-        registerHotkeyListener();
     }
 
     private JPanel createListPanel() {
