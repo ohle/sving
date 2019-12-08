@@ -8,7 +8,9 @@ import org.assertj.swing.fixture.DialogFixture;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JCheckBoxFixture;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
@@ -28,17 +30,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class HinterTest {
     private final SwingHinter hinter = new SwingHinter(new DefaultShortcutGenerator("abc"));
 
-    private static FrameFixture window;
+    private FrameFixture window;
 
-    @BeforeAll
-    public static void setup() {
+    @BeforeEach
+    public void setup() {
         JFrame frame = GuiActionRunner.execute(TestWindow::new);
         window = new FrameFixture(frame);
         window.show();
     }
 
-    @AfterAll
-    static void cleanup() {
+    @AfterEach
+    void cleanup() {
         window.cleanUp();
     }
 
