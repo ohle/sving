@@ -178,7 +178,7 @@ class AgentManager {
     }
 
     Optional<KeyStroke> getHotKey(VirtualMachineDescriptor descriptor) {
-        return Optional.ofNullable(attachedVMs.get(descriptor).hotkey);
+        return Optional.ofNullable(attachedVMs.get(descriptor)).map(vm -> vm.hotkey);
     }
 
     public interface Listener
