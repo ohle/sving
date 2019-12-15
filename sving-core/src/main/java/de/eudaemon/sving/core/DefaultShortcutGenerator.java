@@ -2,6 +2,8 @@ package de.eudaemon.sving.core;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class DefaultShortcutGenerator
         implements ShortcutGenerator{
@@ -9,6 +11,13 @@ public class DefaultShortcutGenerator
     private final String allowedCharacters;
 
     public DefaultShortcutGenerator(String allowedCharacters_) {
+        Set<Character> chars = allowedCharacters_.chars().mapToObj(c -> (char) c).collect(Collectors.toSet());
+        if (allowedCharacters_.length() < 2) {
+            throw new IllegalArgumentException("Need at least two distinct allowed characters.");
+        }
+        if (chars.size() != allowedCharacters_.length()) {
+            throw new IllegalArgumentException("Allowed characters should be distinct.");
+        }
         allowedCharacters = allowedCharacters_;
     }
 
