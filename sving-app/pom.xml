@@ -88,6 +88,9 @@
                             <workingDirectory>doc</workingDirectory>
                             <executable>pandoc</executable>
                             <arguments>
+                                <argument>-s</argument>
+                                <argument>-t</argument>
+                                <argument>man</argument>
                                 <argument>manual.md</argument>
                                 <argument>-o</argument>
                                 <argument>${project.reporting.outputDirectory}/sving.1</argument>
