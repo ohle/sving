@@ -193,7 +193,7 @@ public class CLI {
         try {
             Method main = loader_.loadClass(mainClassName_).getMethod("main", String[].class);
             main.invoke(null, (Object) jarArguments.toArray(new String[]{}));
-            new SvingWindowManager().install("ctrl SEMICOLON");
+            new SvingWindowManager("ctrl SEMICOLON").install();
         } catch (NoSuchMethodException | IllegalAccessException e_) {
             e_.printStackTrace();
         } catch (InvocationTargetException e_) {

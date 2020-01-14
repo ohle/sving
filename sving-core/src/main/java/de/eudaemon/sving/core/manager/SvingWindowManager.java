@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.security.Key;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,26 +18,33 @@ public class SvingWindowManager {
 
     private RootPaneContainer currentlyFocusedWindow = null;
     private SvingGlassPane installedGlassPane = null;
-    private final Hinter<Container, Component> hinter = new SwingHinter(new DefaultShortcutGenerator("abc"));
     private HintingState<Container, Component> hintingState = null;
-    private KeyStroke hotKey;
+
+    private final KeyStroke hotKey;
+    private final SwingHinter hinter;
 
     private static final Logger LOG = Logger.getLogger(SvingWindowManager.class.getName());
 
+    public SvingWindowManager(String hotKeys, ShortcutGenerator generator) {
+        hinter = new SwingHinter(generator);
+        hotKey = KeyStroke.getKeyStroke(hotKeys);
+    }
+
+    public SvingWindowManager(String hotKeys) {
+        this(hotKeys, new DefaultShortcutGenerator("abc"));
+    }
     /**
      * Installs the WindowManager in the current VM
-     * @param hotKey_
      */
-    public void install(String hotKey_) {
-        hotKey = KeyStroke.getKeyStroke(hotKey_);
+    public void install() {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener(
                 "focusedWindow",
                 e -> updateWindow()
-                );
+        );
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener(
                 "managingFocus",
                 e -> updateWindow()
-                );
+        );
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {

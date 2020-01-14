@@ -20,6 +20,6 @@ public class Agent {
         } catch (IOException | URISyntaxException e_) {
             throw new RuntimeException(e_);
         }
-        new SvingWindowManager().install(hotKey);
+        new SvingWindowManager(hotKey).install();
     }
 }
