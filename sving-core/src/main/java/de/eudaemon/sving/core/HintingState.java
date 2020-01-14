@@ -47,6 +47,10 @@ public class HintingState<CONTAINER, COMPONENT> {
         }
     }
 
+    public boolean isAwaitingInput() {
+        return active;
+    }
+
     public void addListener(Listener listener) {
         listeners.add(listener);
     }

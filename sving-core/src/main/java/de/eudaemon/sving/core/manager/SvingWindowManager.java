@@ -55,9 +55,11 @@ public class SvingWindowManager {
                     LOG.fine("Hotkey received");
                     hintingState.hotkeyPressed();
                     return true;
+                } else if (!hintingState.isAwaitingInput()) {
+                    return false;
                 }
                 if (e.getID() != KeyEvent.KEY_RELEASED) {
-                    return false;
+                    return true;
                 }
                 if (hinter.isAllowedHintChar(e.getKeyChar())) {
                     LOG.finer("Hint refinement: " + e.getKeyChar());
@@ -68,7 +70,7 @@ public class SvingWindowManager {
                     hintingState.escapePressed();
                     return true;
                 }
-                return false;
+                return true;
             }
 
             private boolean isHotkey(KeyEvent e) {
